@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Stamina - Tibia</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f3ec;
+      --panel: #ffffff;
+      --ink: #201b16;
+      --muted: #6f675e;
+      --line: #ded6ca;
+      --accent: #2f6f5e;
+      --accent-2: #e7f2ed;
+      --danger: #a23b35;
+      --warn: #8a5a00;
+      --shadow: 0 18px 50px rgba(32, 27, 22, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(960px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 26px 28px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fbfaf7);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 36px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form {
+      padding: 26px 28px 28px;
+      border-right: 1px solid var(--line);
+    }
+
+    .results {
+      padding: 26px 28px 28px;
+      background: #fbfaf7;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    input {
+      width: 100%;
+      border: 1px solid #cfc6b9;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 13px 14px;
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.16);
+    }
+
+    .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(0.95); }
+
+    .card {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .big {
+      font-size: clamp(30px, 5vw, 46px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .medium {
+      font-size: 22px;
+      font-weight: 850;
+      line-height: 1.15;
+    }
+
+    .ok { color: var(--accent); }
+    .bad { color: var(--danger); }
+    .warn { color: var(--warn); }
+
+    .explain {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 12px 0 0;
+    }
+
+    .formula {
+      background: var(--accent-2);
+      border: 1px solid #cce2d9;
+      border-radius: 8px;
+      padding: 13px 14px;
+      color: #244c42;
+      font-size: 13px;
+      line-height: 1.45;
+      margin-top: 16px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 14px;
+        place-items: start center;
+      }
+
+      .content { grid-template-columns: 1fr; }
+
+      .form {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      header, .form, .results {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Calculadora de stamina</h1>
+      <p class="subtitle">
+        Informe a stamina atual, a stamina alvo e quando quer atingir esse alvo. A conta considera que você vai caçar agora e depois ficar offline até o horário definido.
+      </p>
+    </header>
+
+    <section class="content">
+      <div class="form">
+        <div class="row">
+          <div class="field">
+            <label for="current">Stamina atual</label>
+            <input id="current" inputmode="numeric" placeholder="36:22" value="36:22" />
+            <div class="hint">Formato: horas:minutos</div>
+          </div>
+
+          <div class="field">
+            <label for="target">Stamina alvo</label>
+            <input id="target" inputmode="numeric" placeholder="39:00" value="39:00" />
+            <div class="hint">Máximo: 42:00</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="targetDate">Data e hora alvo</label>
+          <input id="targetDate" type="datetime-local" />
+          <div class="hint">Exemplo: amanhã às 05:00</div>
+        </div>
+
+        <button id="calculate">Calcular</button>
+
+        <div class="formula">
+          Regra usada: até 39:00, cada 3 minutos offline recuperam 1 minuto de stamina.
+          De 39:00 até 42:00, cada 6 minutos offline recuperam 1 minuto.
+          Caçando, cada minuto gasta 1 minuto de stamina.
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="card">
+          <div class="label">Pode caçar agora por</div>
+          <div class="big ok" id="huntTime">--:--</div>
+          <p class="explain" id="huntExplain">Preencha os dados e calcule.</p>
+        </div>
+
+        <div class="card">
+          <div class="label">Pare quando a stamina chegar em</div>
+          <div class="big" id="stopAt">--:--</div>
+          <p class="explain" id="stopExplain">Esse é o limite recomendado para chegar no alvo.</p>
+        </div>
+
+        <div class="card">
+          <div class="label">Tempo offline depois disso</div>
+          <div class="medium" id="offlineTime">--:--</div>
+          <p class="explain" id="offlineExplain">Quanto tempo sobraria offline até o alvo.</p>
+        </div>
+
+        <div class="card">
+          <div class="label">Recuperação estimada</div>
+          <div class="medium" id="recoveryBreakdown">--</div>
+          <p class="explain" id="recoveryExplain">Separando recuperação até 39:00 e acima de 39:00.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const NORMAL_LIMIT = 39 * 60;
+    const MAX_STAMINA = 42 * 60;
+
+    const currentEl = document.getElementById("current");
+    const targetEl = document.getElementById("target");
+    const targetDateEl = document.getElementById("targetDate");
+    const calculateEl = document.getElementById("calculate");
+
+    const huntTimeEl = document.getElementById("huntTime");
+    const huntExplainEl = document.getElementById("huntExplain");
+    const stopAtEl = document.getElementById("stopAt");
+    const stopExplainEl = document.getElementById("stopExplain");
+    const offlineTimeEl = document.getElementById("offlineTime");
+    const offlineExplainEl = document.getElementById("offlineExplain");
+    const recoveryBreakdownEl = document.getElementById("recoveryBreakdown");
+    const recoveryExplainEl = document.getElementById("recoveryExplain");
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function minutesToStamina(totalMinutes) {
+      const safe = Math.max(0, Math.floor(totalMinutes));
+      const hours = Math.floor(safe / 60);
+      const minutes = safe % 60;
+      return `${hours}:${pad(minutes)}`;
+    }
+
+    function minutesToDuration(totalMinutes) {
+      const safe = Math.max(0, Math.floor(totalMinutes));
+      const hours = Math.floor(safe / 60);
+      const minutes = safe % 60;
+      return `${hours}h${pad(minutes)}min`;
+    }
+
+    function parseStamina(value) {
+      const clean = value.trim().replace(",", ":").replace(".", ":");
+      const match = clean.match(/^(\d{1,3}):([0-5]\d)$/);
+      if (!match) return null;
+      return Number(match[1]) * 60 + Number(match[2]);
+    }
+
+    function recoverStamina(startStamina, offlineMinutes) {
+      let stamina = Math.min(startStamina, MAX_STAMINA);
+      let remainingOffline = Math.max(0, Math.floor(offlineMinutes));
+      let recoveredNormal = 0;
+      let recoveredBonus = 0;
+
+      if (stamina < NORMAL_LIMIT && remainingOffline >= 3) {
+        const neededNormal = NORMAL_LIMIT - stamina;
+        const possibleNormal = Math.floor(remainingOffline / 3);
+        recoveredNormal = Math.min(neededNormal, possibleNormal);
+        stamina += recoveredNormal;
+        remainingOffline -= recoveredNormal * 3;
+      }
+
+      if (stamina >= NORMAL_LIMIT && stamina < MAX_STAMINA && remainingOffline >= 6) {
+        const neededBonus = MAX_STAMINA - stamina;
+        const possibleBonus = Math.floor(remainingOffline / 6);
+        recoveredBonus = Math.min(neededBonus, possibleBonus);
+        stamina += recoveredBonus;
+        remainingOffline -= recoveredBonus * 6;
+      }
+
+      return {
+        finalStamina: Math.min(stamina, MAX_STAMINA),
+        recoveredNormal,
+        recoveredBonus,
+        recoveredTotal: recoveredNormal + recoveredBonus,
+        unusedOffline: remainingOffline
+      };
+    }
+
+    function setDefaultTargetDate() {
+      const now = new Date();
+      const tomorrowFive = new Date(now);
+      tomorrowFive.setDate(now.getDate() + 1);
+      tomorrowFive.setHours(5, 0, 0, 0);
+
+      const year = tomorrowFive.getFullYear();
+      const month = pad(tomorrowFive.getMonth() + 1);
+      const day = pad(tomorrowFive.getDate());
+      const hour = pad(tomorrowFive.getHours());
+      const minute = pad(tomorrowFive.getMinutes());
+
+      targetDateEl.value = `${year}-${month}-${day}T${hour}:${minute}`;
+    }
+
+    function setError(message) {
+      huntTimeEl.textContent = "--:--";
+      huntTimeEl.className = "big bad";
+      huntExplainEl.textContent = message;
+
+      stopAtEl.textContent = "--:--";
+      stopExplainEl.textContent = "Ajuste os dados para calcular novamente.";
+
+      offlineTimeEl.textContent = "--:--";
+      offlineExplainEl.textContent = "";
+
+      recoveryBreakdownEl.textContent = "--";
+      recoveryExplainEl.textContent = "";
+    }
+
+    function calculate() {
+      const current = parseStamina(currentEl.value);
+      const target = parseStamina(targetEl.value);
+      const targetDate = new Date(targetDateEl.value);
+      const now = new Date();
+
+      if (current === null) {
+        setError("Stamina atual inválida. Use o formato 36:22.");
+        return;
+      }
+
+      if (target === null) {
+        setError("Stamina alvo inválida. Use o formato 39:00.");
+        return;
+      }
+
+      if (current > MAX_STAMINA || target > MAX_STAMINA) {
+        setError("A stamina máxima considerada é 42:00.");
+        return;
+      }
+
+      if (!targetDateEl.value || Number.isNaN(targetDate.getTime())) {
+        setError("Informe uma data e hora alvo válida.");
+        return;
+      }
+
+      const totalWindow = Math.floor((targetDate.getTime() - now.getTime()) / 60000);
+
+      if (totalWindow <= 0) {
+        setError("A data/hora alvo precisa estar no futuro.");
+        return;
+      }
+
+      const noHuntProjection = recoverStamina(current, totalWindow);
+
+      if (noHuntProjection.finalStamina < target) {
+        const deficit = target - noHuntProjection.finalStamina;
+
+        huntTimeEl.textContent = "0h00min";
+        huntTimeEl.className = "big bad";
+        huntExplainEl.textContent = `Mesmo sem caçar, faltariam ${minutesToDuration(deficit)} de stamina para chegar no alvo.`;
+
+        stopAtEl.textContent = minutesToStamina(current);
+        stopExplainEl.textContent = "Nesse cenário, o ideal seria não gastar stamina agora.";
+
+        offlineTimeEl.textContent = minutesToDuration(totalWindow);
+        offlineExplainEl.textContent = `Ficando offline até o alvo, sua stamina projetada seria ${minutesToStamina(noHuntProjection.finalStamina)}.`;
+
+        recoveryBreakdownEl.textContent =
+          `${minutesToDuration(noHuntProjection.recoveredNormal)} + ${minutesToDuration(noHuntProjection.recoveredBonus)}`;
+        recoveryExplainEl.textContent =
+          "Primeiro valor: recuperação até 39:00. Segundo valor: recuperação de 39:00 até 42:00.";
+        return;
+      }
+
+      let allowedHunt = 0;
+
+      for (let hunt = 0; hunt <= Math.min(current, totalWindow); hunt++) {
+        const stopAt = current - hunt;
+        const offlineAfter = totalWindow - hunt;
+        const projection = recoverStamina(stopAt, offlineAfter);
+
+        if (projection.finalStamina >= target) {
+          allowedHunt = hunt;
+        } else {
+          break;
+        }
+      }
+
+      const stopAt = current - allowedHunt;
+      const offlineAfter = totalWindow - allowedHunt;
+      const projection = recoverStamina(stopAt, offlineAfter);
+
+      huntTimeEl.textContent = minutesToDuration(allowedHunt);
+      huntTimeEl.className = allowedHunt > 0 ? "big ok" : "big warn";
+      huntExplainEl.textContent = allowedHunt > 0
+        ? "Esse é o máximo aproximado que você pode caçar agora."
+        : "Você já está no limite. Para bater o alvo, não vale gastar stamina agora.";
+
+      stopAtEl.textContent = minutesToStamina(stopAt);
+      stopExplainEl.textContent =
+        `Parando nesse ponto, a projeção no horário alvo fica em ${minutesToStamina(projection.finalStamina)}.`;
+
+      offlineTimeEl.textContent = minutesToDuration(offlineAfter);
+      offlineExplainEl.textContent =
+        "Esse é o tempo offline restante entre parar de caçar e chegar no horário alvo.";
+
+      recoveryBreakdownEl.textContent =
+        `${minutesToDuration(projection.recoveredNormal)} + ${minutesToDuration(projection.recoveredBonus)}`;
+      recoveryExplainEl.textContent =
+        "Primeiro valor: recuperação até 39:00, em ritmo de 3:1. Segundo valor: recuperação acima de 39:00, em ritmo de 6:1.";
+    }
+
+    setDefaultTargetDate();
+    calculate();
+
+    calculateEl.addEventListener("click", calculate);
+    currentEl.addEventListener("input", calculate);
+    targetEl.addEventListener("input", calculate);
+    targetDateEl.addEventListener("input", calculate);
+  </script>
+</body>
+</html>
