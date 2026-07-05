@@ -163,6 +163,17 @@
       margin: 12px 0 0;
     }
 
+    .home-link {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .home-link:hover { text-decoration: underline; }
+
     .formula {
       background: var(--accent-2);
       border: 1px solid #cce2d9;
@@ -208,6 +219,7 @@
 <body>
   <main>
     <header>
+      <a class="home-link" href="index.html">← Calculadoras</a>
       <h1>Calculadora de stamina</h1>
       <p class="subtitle">
         Informe a stamina atual, a stamina alvo e quando quer atingir esse alvo. A conta considera que você vai caçar agora e depois ficar offline até o horário definido.
@@ -235,8 +247,6 @@
           <input id="targetDate" type="datetime-local" />
           <div class="hint">Exemplo: amanhã às 05:00</div>
         </div>
-
-        <button id="calculate">Calcular</button>
 
         <div class="formula">
           Regra usada: até 39:00, cada 3 minutos offline recuperam 1 minuto de stamina.
@@ -280,7 +290,6 @@
     const currentEl = document.getElementById("current");
     const targetEl = document.getElementById("target");
     const targetDateEl = document.getElementById("targetDate");
-    const calculateEl = document.getElementById("calculate");
 
     const huntTimeEl = document.getElementById("huntTime");
     const huntExplainEl = document.getElementById("huntExplain");
@@ -473,7 +482,6 @@
     setDefaultTargetDate();
     calculate();
 
-    calculateEl.addEventListener("click", calculate);
     currentEl.addEventListener("input", calculate);
     targetEl.addEventListener("input", calculate);
     targetDateEl.addEventListener("input", calculate);
