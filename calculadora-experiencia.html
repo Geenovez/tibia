@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Experiência - Tibia</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f3ec;
+      --panel: #ffffff;
+      --ink: #201b16;
+      --muted: #6f675e;
+      --line: #ded6ca;
+      --accent: #2f6f5e;
+      --accent-2: #e7f2ed;
+      --danger: #a23b35;
+      --warn: #8a5a00;
+      --shadow: 0 18px 50px rgba(32, 27, 22, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(960px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 26px 28px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fbfaf7);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 36px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 18px;
+      font-weight: 850;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form {
+      padding: 26px 28px 28px;
+      border-right: 1px solid var(--line);
+    }
+
+    .results {
+      padding: 26px 28px 28px;
+      background: #fbfaf7;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    input {
+      width: 100%;
+      border: 1px solid #cfc6b9;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 13px 14px;
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.16);
+    }
+
+    .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(0.95); }
+
+    .card {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .card.feature {
+      border-color: #cce2d9;
+      background: var(--accent-2);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .big {
+      font-size: clamp(28px, 4.5vw, 40px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .medium {
+      font-size: 22px;
+      font-weight: 850;
+      line-height: 1.15;
+    }
+
+    .ok { color: var(--accent); }
+    .bad { color: var(--danger); }
+    .warn { color: var(--warn); }
+
+    .explain {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 12px 0 0;
+    }
+
+    .calc {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .calc b { color: var(--ink); font-weight: 800; }
+
+    .home-link {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .home-link:hover { text-decoration: underline; }
+
+    .formula {
+      background: var(--accent-2);
+      border: 1px solid #cce2d9;
+      border-radius: 8px;
+      padding: 13px 14px;
+      color: #244c42;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 16px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .table-section {
+      padding: 26px 28px 28px;
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead th {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      text-align: right;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    thead tr:last-child th,
+    thead th[rowspan] { border-bottom: 2px solid var(--line); }
+    thead th.group { text-align: center; font-weight: 850; }
+    thead th.lbl { text-align: left; }
+    .divider { border-left: 1px solid var(--line); }
+
+    tbody td {
+      padding: 11px 12px;
+      text-align: right;
+      border-bottom: 1px solid var(--line);
+      font-variant-numeric: tabular-nums;
+    }
+
+    tbody td:first-child {
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:hover { background: #fbfaf7; }
+
+    tbody tr.base-row { background: var(--accent-2); }
+    tbody tr.base-row:hover { background: #dcebe4; }
+
+    tbody tr.over td { color: var(--muted); opacity: 0.65; }
+
+    .col-double { color: var(--accent); font-weight: 800; }
+    .cost { color: var(--warn); font-weight: 700; }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--accent);
+      background: #fff;
+      border: 1px solid #cce2d9;
+      border-radius: 999px;
+      padding: 2px 8px;
+      margin-left: 8px;
+    }
+
+    .foot-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 14px;
+        place-items: start center;
+      }
+
+      .content { grid-template-columns: 1fr; }
+
+      .form {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      header, .form, .results, .table-section {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a class="home-link" href="index.html">← Calculadoras</a>
+      <h1>Calculadora de experiência</h1>
+      <p class="subtitle">
+        Informe sua EXP/hora base (raw) e a calculadora mostra quanto de experiência você faz no período combinando
+        bônus de stamina, XP Boost e evento de Double Experience — além de quantos Tibia Coins cada opção custa.
+      </p>
+    </header>
+
+    <section class="content">
+      <div class="form">
+        <div class="field">
+          <label for="raw">EXP/HR RAW (base por hora)</label>
+          <input id="raw" inputmode="numeric" placeholder="ex: 1.200.000" value="1.000.000" />
+          <div class="hint">Sua experiência por hora sem nenhum bônus (100%).</div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="hunt">Tempo de caça</label>
+            <input id="hunt" inputmode="numeric" placeholder="3:00" value="3:00" />
+            <div class="hint">Formato: horas:minutos</div>
+          </div>
+
+          <div class="field">
+            <label for="stamina">Stamina atual</label>
+            <input id="stamina" inputmode="numeric" placeholder="42:00" value="42:00" />
+            <div class="hint">Máximo: 42:00</div>
+          </div>
+        </div>
+
+        <div class="formula">
+          Bônus (somados ao valor base):<br>
+          • <strong>Stamina bônus</strong> (39:00–42:00) = <strong>+50%</strong><br>
+          • <strong>XP Boost</strong> = <strong>+50%</strong> por 1h de caça (máx. 5/dia)<br>
+          • <strong>Double Experience</strong> = <strong>+100%</strong><br>
+          Preço do XP Boost no dia (TC): 30 · 45 · 90 · 180 · 360 (1º ao 5º).<br>
+          Obs.: abaixo de 14:00 de stamina a exp cai 50% no jogo — não considerado aqui.
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="card">
+          <div class="label">EXP crua (raw) no período</div>
+          <div class="medium" id="rawTotal">--</div>
+          <p class="explain" id="rawExplain">Preencha os dados.</p>
+          <div class="calc" id="rawCalc"></div>
+        </div>
+
+        <div class="card">
+          <div class="label">Com bônus de stamina</div>
+          <div class="big ok" id="staminaTotal">--</div>
+          <p class="explain" id="staminaExplain"></p>
+          <div class="calc" id="staminaCalc"></div>
+        </div>
+
+        <div class="card">
+          <div class="label">Com 1 XP Boost</div>
+          <div class="medium ok" id="boostTotal">--</div>
+          <p class="explain" id="boostExplain"></p>
+          <div class="calc" id="boostCalc"></div>
+        </div>
+
+        <div class="card">
+          <div class="label">Com evento de Double Experience</div>
+          <div class="medium ok" id="doubleTotal">--</div>
+          <p class="explain" id="doubleExplain"></p>
+          <div class="calc" id="doubleCalc"></div>
+        </div>
+
+        <div class="card feature">
+          <div class="label">Tudo combinado (máximo)</div>
+          <div class="big ok" id="maxTotal">--</div>
+          <p class="explain" id="maxExplain"></p>
+          <div class="calc" id="maxCalc"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-section">
+      <h2>Todas as variações <span class="tag" id="staminaTag"></span></h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th rowspan="2" class="lbl">XP Boosts</th>
+              <th rowspan="2">Custo (TC)</th>
+              <th colspan="2" class="group">Sem Double</th>
+              <th colspan="2" class="group divider">Com Double (+100%)</th>
+            </tr>
+            <tr>
+              <th>Sem stamina</th>
+              <th>Com stamina</th>
+              <th class="divider">Sem stamina</th>
+              <th>Com stamina</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <p class="foot-note" id="footNote"></p>
+    </section>
+  </main>
+
+  <script>
+    const BONUS_LIMIT = 39 * 60;   // acima disso, stamina dá +50%
+    const MAX_STAMINA = 42 * 60;
+    const BOOST_PRICES = [30, 45, 90, 180, 360]; // 1º ao 5º boost do dia (TC)
+    const MAX_BOOSTS = 5;
+
+    const rawEl = document.getElementById("raw");
+    const huntEl = document.getElementById("hunt");
+    const staminaEl = document.getElementById("stamina");
+
+    const rawTotalEl = document.getElementById("rawTotal");
+    const rawExplainEl = document.getElementById("rawExplain");
+    const rawCalcEl = document.getElementById("rawCalc");
+    const staminaTotalEl = document.getElementById("staminaTotal");
+    const staminaExplainEl = document.getElementById("staminaExplain");
+    const staminaCalcEl = document.getElementById("staminaCalc");
+    const boostTotalEl = document.getElementById("boostTotal");
+    const boostExplainEl = document.getElementById("boostExplain");
+    const boostCalcEl = document.getElementById("boostCalc");
+    const doubleTotalEl = document.getElementById("doubleTotal");
+    const doubleExplainEl = document.getElementById("doubleExplain");
+    const doubleCalcEl = document.getElementById("doubleCalc");
+    const maxTotalEl = document.getElementById("maxTotal");
+    const maxExplainEl = document.getElementById("maxExplain");
+    const maxCalcEl = document.getElementById("maxCalc");
+    const staminaTagEl = document.getElementById("staminaTag");
+    const tableBodyEl = document.getElementById("tableBody");
+    const footNoteEl = document.getElementById("footNote");
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function parseNumber(value) {
+      const digits = value.replace(/[^\d]/g, "");
+      if (!digits) return null;
+      return Number(digits);
+    }
+
+    // Insere um ponto a cada 3 dígitos (padrão pt-BR): 10000000 -> "10.000.000".
+    function groupThousands(digits) {
+      const clean = digits.replace(/^0+(?=\d)/, "");
+      return clean.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    // Aplica a máscara no campo raw preservando a posição do cursor.
+    function maskRawInput() {
+      const oldValue = rawEl.value;
+      const caret = rawEl.selectionStart ?? oldValue.length;
+      const digitsBeforeCaret = oldValue.slice(0, caret).replace(/\D/g, "").length;
+
+      const formatted = groupThousands(oldValue.replace(/\D/g, ""));
+      rawEl.value = formatted;
+
+      let newCaret = formatted.length;
+      if (digitsBeforeCaret === 0) {
+        newCaret = 0;
+      } else {
+        let count = 0;
+        for (let i = 0; i < formatted.length; i++) {
+          if (/\d/.test(formatted[i])) count++;
+          if (count === digitsBeforeCaret) { newCaret = i + 1; break; }
+        }
+      }
+      rawEl.setSelectionRange(newCaret, newCaret);
+    }
+
+    function parseTime(value) {
+      const clean = value.trim().replace(",", ":").replace(".", ":");
+      const match = clean.match(/^(\d{1,3}):([0-5]\d)$/);
+      if (!match) return null;
+      return Number(match[1]) * 60 + Number(match[2]);
+    }
+
+    function formatExp(value) {
+      return Math.round(value).toLocaleString("pt-BR");
+    }
+
+    function minutesToDuration(totalMinutes) {
+      const safe = Math.max(0, Math.round(totalMinutes));
+      const hours = Math.floor(safe / 60);
+      const minutes = safe % 60;
+      if (hours === 0) return `${minutes}min`;
+      if (minutes === 0) return `${hours}h`;
+      return `${hours}h${pad(minutes)}min`;
+    }
+
+    // Custo acumulado (TC) para comprar `count` boosts no mesmo dia.
+    function boostCost(count) {
+      let total = 0;
+      for (let i = 0; i < count && i < BOOST_PRICES.length; i++) {
+        total += BOOST_PRICES[i];
+      }
+      return total;
+    }
+
+    // Todos os bônus são ADITIVOS ao valor base. Como a EXP/min é constante,
+    // o total é: base + metade da stamina bônus + metade do boost + double (100%).
+    function computeExp(rawPerHour, huntMin, staminaStart, boostCount, doubleOn) {
+      const perMin = rawPerHour / 60;
+      const staminaBonusMin = Math.min(Math.max(0, staminaStart - BONUS_LIMIT), huntMin);
+      const boostMin = Math.min(boostCount * 60, huntMin);
+
+      const base = perMin * huntMin;
+      const staminaExtra = perMin * 0.5 * staminaBonusMin;
+      const boostExtra = perMin * 0.5 * boostMin;
+      const doubleExtra = doubleOn ? perMin * huntMin : 0;
+
+      return {
+        total: base + staminaExtra + boostExtra + doubleExtra,
+        base,
+        staminaExtra,
+        boostExtra,
+        doubleExtra,
+        staminaBonusMin,
+        boostMin
+      };
+    }
+
+    // Monta a memória de cálculo: base + partes não-zero = total.
+    function breakdown(run) {
+      const parts = [`base <b>${formatExp(run.base)}</b>`];
+      if (run.staminaExtra > 0) parts.push(`stamina +50% <b>${formatExp(run.staminaExtra)}</b>`);
+      if (run.boostExtra > 0) parts.push(`boost +50% <b>${formatExp(run.boostExtra)}</b>`);
+      if (run.doubleExtra > 0) parts.push(`double +100% <b>${formatExp(run.doubleExtra)}</b>`);
+      return `${parts.join(" + ")} = <b>${formatExp(run.total)}</b>`;
+    }
+
+    function setError(message) {
+      rawTotalEl.textContent = "--";
+      rawTotalEl.className = "medium bad";
+      rawExplainEl.textContent = message;
+      rawCalcEl.innerHTML = "";
+
+      staminaTotalEl.textContent = "--";
+      staminaExplainEl.textContent = "";
+      staminaCalcEl.innerHTML = "";
+      boostTotalEl.textContent = "--";
+      boostExplainEl.textContent = "";
+      boostCalcEl.innerHTML = "";
+      doubleTotalEl.textContent = "--";
+      doubleExplainEl.textContent = "";
+      doubleCalcEl.innerHTML = "";
+      maxTotalEl.textContent = "--";
+      maxExplainEl.textContent = "";
+      maxCalcEl.innerHTML = "";
+      staminaTagEl.textContent = "";
+      tableBodyEl.innerHTML = "";
+      footNoteEl.textContent = "";
+    }
+
+    function calculate() {
+      const raw = parseNumber(rawEl.value);
+      const huntMin = parseTime(huntEl.value);
+      const staminaStart = parseTime(staminaEl.value);
+
+      if (raw === null || raw <= 0) {
+        setError("Informe uma EXP/hora base válida (ex: 1200000).");
+        return;
+      }
+      if (huntMin === null || huntMin <= 0) {
+        setError("Tempo de caça inválido. Use o formato 3:00.");
+        return;
+      }
+      if (staminaStart === null) {
+        setError("Stamina atual inválida. Use o formato 42:00.");
+        return;
+      }
+      if (staminaStart > MAX_STAMINA) {
+        setError("A stamina máxima considerada é 42:00.");
+        return;
+      }
+
+      // Quantos boosts fazem sentido nesta caça (cada boost cobre 1h), limitado a 5/dia.
+      const usefulBoosts = Math.min(MAX_BOOSTS, Math.ceil(huntMin / 60));
+
+      // Cada cenário acumula o bônus de stamina (que é automático conforme a stamina atual).
+      const staminaRun = computeExp(raw, huntMin, staminaStart, 0, false);       // stamina
+      const boostRun = computeExp(raw, huntMin, staminaStart, 1, false);         // stamina + 1 boost
+      const doubleRun = computeExp(raw, huntMin, staminaStart, 0, true);         // stamina + double
+      const maxRun = computeExp(raw, huntMin, staminaStart, usefulBoosts, true); // stamina + boosts + double
+
+      // EXP crua = base pura, sem nenhum bônus (nem stamina).
+      const perMin = raw / 60;
+      const pureRaw = perMin * huntMin;
+
+      const bonusMin = staminaRun.staminaBonusMin;
+      const oneBoostMin = Math.min(60, huntMin);
+      const maxBoostLabel = `${usefulBoosts} XP Boost${usefulBoosts > 1 ? "s" : ""} (${boostCost(usefulBoosts)} TC)`;
+
+      rawTotalEl.textContent = formatExp(pureRaw);
+      rawTotalEl.className = "medium";
+      rawExplainEl.textContent =
+        `${formatExp(raw)} exp/h × ${minutesToDuration(huntMin)} de caça, sem nenhum bônus.`;
+      rawCalcEl.innerHTML =
+        `${formatExp(raw)} exp/h × ${minutesToDuration(huntMin)} = <b>${formatExp(pureRaw)}</b>`;
+
+      staminaTotalEl.textContent = formatExp(staminaRun.total);
+      staminaExplainEl.textContent = bonusMin > 0
+        ? `Bônus de stamina (+50%) cobre ${minutesToDuration(bonusMin)} da caça (de 42:00 até 39:00). É o que você já ganha sem gastar nada.`
+        : `Sua stamina está abaixo de 39:00, então não há bônus de stamina neste período.`;
+      staminaCalcEl.innerHTML = breakdown(staminaRun);
+
+      boostTotalEl.textContent = formatExp(boostRun.total);
+      boostExplainEl.textContent =
+        `1 XP Boost (${boostCost(1)} TC) cobre ${minutesToDuration(oneBoostMin)} da caça, somado ao bônus de stamina.`;
+      boostCalcEl.innerHTML = breakdown(boostRun);
+
+      doubleTotalEl.textContent = formatExp(doubleRun.total);
+      doubleExplainEl.textContent =
+        `Evento de Double Experience (+100%), somado ao bônus de stamina. Sem gastar Tibia Coins.`;
+      doubleCalcEl.innerHTML = breakdown(doubleRun);
+
+      maxTotalEl.textContent = formatExp(maxRun.total);
+      maxExplainEl.textContent =
+        `Stamina + ${maxBoostLabel} + Double Experience, tudo somado.`;
+      maxCalcEl.innerHTML = breakdown(maxRun);
+
+      staminaTagEl.textContent = bonusMin > 0
+        ? `stamina +50% por ${minutesToDuration(bonusMin)}`
+        : `sem bônus de stamina`;
+
+      // Tabela completa: linhas = nº de XP Boosts (0..5, o máximo diário).
+      // Colunas = combinações de bônus de stamina (sem/com) e Double (sem/com).
+      // "Sem stamina" força a ausência do bônus verde; "Com stamina" usa a stamina atual.
+      tableBodyEl.innerHTML = "";
+      for (let b = 0; b <= MAX_BOOSTS; b++) {
+        const cost = boostCost(b);
+        const noStamNoDbl = computeExp(raw, huntMin, 0, b, false).total;
+        const stamNoDbl = computeExp(raw, huntMin, staminaStart, b, false).total;
+        const noStamDbl = computeExp(raw, huntMin, 0, b, true).total;
+        const stamDbl = computeExp(raw, huntMin, staminaStart, b, true).total;
+
+        const tr = document.createElement("tr");
+        const classes = [];
+        if (b === 0) classes.push("base-row");
+        if (b > usefulBoosts) classes.push("over");
+        if (classes.length) tr.className = classes.join(" ");
+
+        tr.innerHTML = `
+          <td>${b === 0 ? "Nenhum" : b + "×"}</td>
+          <td class="${cost > 0 ? "cost" : ""}">${cost > 0 ? cost.toLocaleString("pt-BR") : "—"}</td>
+          <td>${formatExp(noStamNoDbl)}</td>
+          <td>${formatExp(stamNoDbl)}</td>
+          <td class="col-double divider">${formatExp(noStamDbl)}</td>
+          <td class="col-double">${formatExp(stamDbl)}</td>
+        `;
+        tableBodyEl.appendChild(tr);
+      }
+
+      const parts = [];
+      parts.push(`Cada XP Boost dura 1h de caça (máx. 5/dia) e cobre parte da sua sessão de ${minutesToDuration(huntMin)}.`);
+      if (usefulBoosts < MAX_BOOSTS) {
+        parts.push(`Como sua caça dura ${minutesToDuration(huntMin)}, boosts acima de ${usefulBoosts}× (linhas em cinza) não rendem exp extra.`);
+      }
+      parts.push(`Colunas "com stamina" usam sua stamina atual; "sem stamina" mostra o cenário sem o bônus verde. "Com Double" soma o evento de Double Experience (+100%).`);
+      footNoteEl.textContent = parts.join(" ");
+    }
+
+    calculate();
+
+    rawEl.addEventListener("input", () => {
+      maskRawInput();
+      calculate();
+    });
+    huntEl.addEventListener("input", calculate);
+    staminaEl.addEventListener("input", calculate);
+  </script>
+</body>
+</html>
