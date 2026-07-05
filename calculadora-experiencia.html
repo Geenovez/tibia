@@ -347,11 +347,13 @@
         </div>
 
         <div class="formula">
-          Bônus (somados ao valor base):<br>
-          • <strong>Stamina bônus</strong> (39:00–42:00) = <strong>+50%</strong><br>
-          • <strong>XP Boost</strong> = <strong>+50%</strong> por 1h de caça (máx. 5/dia)<br>
-          • <strong>Double Experience</strong> = <strong>+100%</strong><br>
-          Preço do XP Boost no dia (TC): 30 · 45 · 90 · 180 · 360 (1º ao 5º).<br>
+          Fórmula do Tibia:
+          <strong>(1 base + 1 double + 0,5 boost) × 1,5 stamina</strong><br>
+          • <strong>Double Experience</strong> e <strong>XP Boost</strong> são <strong>somados ao base</strong>
+          (+100% e +50% do base). Ex.: base + double + boost = 250%.<br>
+          • <strong>Stamina bônus</strong> (39:00–42:00) é a exceção: <strong>multiplica</strong> por
+          <strong>1,5</strong> tudo o que é ganho na janela. Ex.: 250% × 1,5 = 375%.<br>
+          • XP Boost dura 1h de caça (máx. 5/dia). Preço no dia (TC): 30 · 45 · 90 · 180 · 360.<br>
           Obs.: abaixo de 14:00 de stamina a exp cai 50% no jogo — não considerado aqui.
         </div>
       </div>
@@ -515,35 +517,41 @@
       return total;
     }
 
-    // Todos os bônus são ADITIVOS ao valor base. Como a EXP/min é constante,
-    // o total é: base + metade da stamina bônus + metade do boost + double (100%).
+    // Fórmula do Tibia: (1 base + 1 double + 0,5 boost) × 1,5 stamina.
+    // Ou seja: Double e XP Boost são ADITIVOS ao base; a stamina verde é a única
+    // MULTIPLICATIVA — multiplica por 1,5 tudo o que é ganho na janela de stamina.
+    // Boost e stamina começam no início da caça, então se sobrepõem (o boost também
+    // é multiplicado pela stamina durante a sobreposição).
     function computeExp(rawPerHour, huntMin, staminaStart, boostCount, doubleOn) {
       const perMin = rawPerHour / 60;
       const staminaBonusMin = Math.min(Math.max(0, staminaStart - BONUS_LIMIT), huntMin);
       const boostMin = Math.min(boostCount * 60, huntMin);
+      const additive = 1 + (doubleOn ? 1 : 0);            // base (+ double), parte aditiva
+      const overlap = Math.min(boostMin, staminaBonusMin); // minutos com boost E stamina
 
       const base = perMin * huntMin;
-      const staminaExtra = perMin * 0.5 * staminaBonusMin;
-      const boostExtra = perMin * 0.5 * boostMin;
       const doubleExtra = doubleOn ? perMin * huntMin : 0;
+      const boostExtra = perMin * 0.5 * boostMin;
+      // Stamina multiplica (+50%) tudo ganho na janela: base + double + boost daquela janela.
+      const staminaExtra = 0.5 * perMin * (additive * staminaBonusMin + 0.5 * overlap);
 
       return {
-        total: base + staminaExtra + boostExtra + doubleExtra,
+        total: base + doubleExtra + boostExtra + staminaExtra,
         base,
-        staminaExtra,
-        boostExtra,
         doubleExtra,
+        boostExtra,
+        staminaExtra,
         staminaBonusMin,
         boostMin
       };
     }
 
-    // Monta a memória de cálculo: base + partes não-zero = total.
+    // Monta a memória de cálculo: base + partes aditivas + stamina (×1,5 da janela) = total.
     function breakdown(run) {
       const parts = [`base <b>${formatExp(run.base)}</b>`];
-      if (run.staminaExtra > 0) parts.push(`stamina +50% <b>${formatExp(run.staminaExtra)}</b>`);
-      if (run.boostExtra > 0) parts.push(`boost +50% <b>${formatExp(run.boostExtra)}</b>`);
       if (run.doubleExtra > 0) parts.push(`double +100% <b>${formatExp(run.doubleExtra)}</b>`);
+      if (run.boostExtra > 0) parts.push(`boost +50% <b>${formatExp(run.boostExtra)}</b>`);
+      if (run.staminaExtra > 0) parts.push(`stamina ×1,5 na janela <b>${formatExp(run.staminaExtra)}</b>`);
       return `${parts.join(" + ")} = <b>${formatExp(run.total)}</b>`;
     }
 
@@ -624,17 +632,17 @@
 
       boostTotalEl.textContent = formatExp(boostRun.total);
       boostExplainEl.textContent =
-        `1 XP Boost (${boostCost(1)} TC) cobre ${minutesToDuration(oneBoostMin)} da caça, somado ao bônus de stamina.`;
+        `1 XP Boost (${boostCost(1)} TC) cobre ${minutesToDuration(oneBoostMin)} da caça. Já com o bônus de stamina (×1,5 na janela).`;
       boostCalcEl.innerHTML = breakdown(boostRun);
 
       doubleTotalEl.textContent = formatExp(doubleRun.total);
       doubleExplainEl.textContent =
-        `Evento de Double Experience (+100%), somado ao bônus de stamina. Sem gastar Tibia Coins.`;
+        `Evento de Double Experience (+100% do base). Já com o bônus de stamina. Sem gastar Tibia Coins.`;
       doubleCalcEl.innerHTML = breakdown(doubleRun);
 
       maxTotalEl.textContent = formatExp(maxRun.total);
       maxExplainEl.textContent =
-        `Stamina + ${maxBoostLabel} + Double Experience, tudo somado.`;
+        `Base + Double + ${maxBoostLabel}, com a stamina multiplicando (×1,5) a janela.`;
       maxCalcEl.innerHTML = breakdown(maxRun);
 
       staminaTagEl.textContent = bonusMin > 0
