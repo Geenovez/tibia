@@ -157,30 +157,26 @@
       border-radius: 8px;
       padding: 12px 14px;
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
     }
     .card.feature {
       border-color: #cce2d9;
       background: var(--accent-2);
     }
 
-    .card .pct {
-      font-size: 26px;
-      font-weight: 900;
-      line-height: 1;
+    .card .exp {
+      font-size: 19px;
+      font-weight: 850;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
     }
-    .card .pct.ok { color: var(--accent); }
+    .card .exp.ok { color: var(--accent); }
 
     .card .side {
       text-align: right;
       min-width: 0;
-    }
-    .card .exp {
-      font-size: 15px;
-      font-weight: 850;
-      font-variant-numeric: tabular-nums;
     }
     .card .tag {
       font-size: 10.5px;
@@ -188,6 +184,12 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--muted);
+    }
+    .card .segs {
+      font-size: 12px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
     }
 
     .formula {
@@ -451,7 +453,49 @@
       );
     }
 
+    // Composição por segmentos da caça. Ex.: "1h 225% + 2h 150%".
+    function segmentText(huntMin, staminaStart, boostCount, doubleOn) {
+      const staminaMin = Math.min(Math.max(0, staminaStart - BONUS_LIMIT), huntMin);
+      const boostMin = Math.min(boostCount * 60, huntMin);
+      const d = doubleOn ? 1 : 0;
+      const overlap = Math.min(staminaMin, boostMin);
+      const staminaOnly = Math.max(0, staminaMin - boostMin);
+      const boostOnly = Math.max(0, boostMin - staminaMin);
+      const neither = huntMin - Math.max(staminaMin, boostMin);
+
+      const segs = [];
+      if (overlap > 0) segs.push([overlap, (1.5 + d) * 1.5]);   // stamina + boost
+      if (staminaOnly > 0) segs.push([staminaOnly, 1.5 + d]);   // só stamina
+      if (boostOnly > 0) segs.push([boostOnly, (1 + d) * 1.5]); // só boost (sem stamina)
+      if (neither > 0) segs.push([neither, 1 + d]);             // base
+      return segs.map(([min, mult]) => `${shortNum(min / 60)}h ${Math.round(mult * 100)}%`).join(" + ");
+    }
+
+    // Persistência dos campos (localStorage) — os valores sobrevivem ao F5.
+    const STORE_KEY = "tibiaTools:xp";
+    const STORE_TEXT = ["raw", "hunt", "goldPerTc", "reaisPer250"];
+    const STORE_CHECK = ["doubleFlag"];
+
+    function saveState() {
+      try {
+        const s = {};
+        STORE_TEXT.forEach(id => { const el = document.getElementById(id); if (el) s[id] = el.value; });
+        STORE_CHECK.forEach(id => { const el = document.getElementById(id); if (el) s[id] = el.checked; });
+        localStorage.setItem(STORE_KEY, JSON.stringify(s));
+      } catch (e) {}
+    }
+
+    function restoreState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+        if (!s) return;
+        STORE_TEXT.forEach(id => { const el = document.getElementById(id); if (el && typeof s[id] === "string") el.value = s[id]; });
+        STORE_CHECK.forEach(id => { const el = document.getElementById(id); if (el && typeof s[id] === "boolean") el.checked = s[id]; });
+      } catch (e) {}
+    }
+
     function calculate() {
+      saveState();
       const raw = parseNumber(rawEl.value);
       const huntMin = parseTime(huntEl.value);
       const goldPerTc = parseNumber(goldPerTcEl.value);
@@ -471,34 +515,33 @@
       const pct = total => (total / rawPeriod) * 100;
       const usefulBoosts = Math.min(MAX_BOOSTS, Math.ceil(huntMin / 60));
 
-      // Cards: sem stamina (100%/200%), com stamina (150%/300%), com stamina + boost máx (225%/375%).
-      // Tetos por hora (constantes): o nº de boosts = quantas horas ficam no teto de boost.
+      // Tetos por hora (para as notas): base / stamina / boost.
       const basePct = withDouble ? 200 : 100;
       const staminaPct = withDouble ? 250 : 150;
       const boostPct = withDouble ? 375 : 225;
+      const hd = shortNum(hours) + "h"; // duração da caça (ex.: "3h")
       const cBase = computeExp(raw, huntMin, 0, 0, withDouble);
       const cStam = computeExp(raw, huntMin, MAX_STAMINA, 0, withDouble);
 
+      // Cada card = a caça INTEIRA num cenário. O % é o efetivo médio (stamina só nas 3 primeiras horas).
       const cards = [
-        { tag: "sem bônus", pctStr: basePct + "%", exp: cBase, feature: false, ok: false },
-        { tag: "stamina", pctStr: staminaPct + "%", exp: cStam, feature: false, ok: true }
+        { tag: `${hd} · sem bônus`, segs: segmentText(huntMin, 0, 0, withDouble), exp: cBase, feature: false, ok: false },
+        { tag: `${hd} · stamina`, segs: segmentText(huntMin, MAX_STAMINA, 0, withDouble), exp: cStam, feature: false, ok: true }
       ];
-      const stamMin = Math.min(MAX_STAMINA - BONUS_LIMIT, huntMin); // minutos com bônus de stamina
       for (let b = 1; b <= usefulBoosts; b++) {
         const c = computeExp(raw, huntMin, MAX_STAMINA, b, withDouble);
-        const h225 = Math.min(b * 60, stamMin) / 60; // horas no teto (boost ∩ stamina)
         cards.push({
-          tag: `${b} boost${b > 1 ? "s" : ""} · ${shortNum(h225)}h`,
-          pctStr: boostPct + "%",
+          tag: `${hd} · stamina + ${b} boost${b > 1 ? "s" : ""}`,
+          segs: segmentText(huntMin, MAX_STAMINA, b, withDouble),
           exp: c, feature: b === usefulBoosts, ok: true
         });
       }
       cardsEl.innerHTML = cards.map(c => `
         <div class="card${c.feature ? " feature" : ""}">
-          <div class="pct${c.ok ? " ok" : ""}">${c.pctStr}</div>
+          <div class="exp${c.ok ? " ok" : ""}">${fmtExp(c.exp)}</div>
           <div class="side">
-            <div class="exp">${fmtExp(c.exp)}</div>
             <div class="tag">${c.tag}</div>
+            <div class="segs">${c.segs}</div>
           </div>
         </div>
       `).join("");
@@ -508,7 +551,7 @@
       let rows = `
           <tr>
             <td>Sem bônus</td>
-            <td class="pct-col">${basePct}%</td>
+            <td class="pct-col">${fmtPct(pct(cBase))}</td>
             <td>${fmtExp(cBase)}</td>
             <td>—</td>
             <td>—</td>
@@ -522,7 +565,7 @@
         rows += `
           <tr class="${b === 0 ? "base-row" : ""}">
             <td>${b === 0 ? "Stamina bônus" : b + "×"}</td>
-            <td class="pct-col">${b === 0 ? staminaPct : boostPct}%</td>
+            <td class="pct-col">${fmtPct(pct(total))}</td>
             <td>${fmtExp(total)}</td>
             <td class="${tc > 0 ? "cost" : ""}">${boostCostText(b)}</td>
             <td>${goldStr}</td>
@@ -538,7 +581,7 @@
         + `.<br>Rate: 1 TC = ${goldPerTc ? goldPerTc.toLocaleString("pt-BR") : "?"} gold · 250 TC = ${reaisPer250 !== null ? fmtReais(reaisPer250) : "?"}.`;
 
       const noteParts = [
-        `% = teto por hora. Cada XP Boost eleva 1h a ${boostPct}% (um por vez); o resto da caça fica a ${staminaPct}% (stamina).`,
+        `Os % são a média efetiva da caça inteira. A stamina bônus cobre só as 3 primeiras horas (${staminaPct}%/h); depois é ${basePct}% (base). Cada XP Boost leva 1h ao teto de ${boostPct}%, um por vez.`,
         `Período a 100% (cru): ${fmtExp(rawPeriod)}.`
       ];
       if (hours > 3.5) {
@@ -547,6 +590,7 @@
       footNoteEl.textContent = noteParts.join(" ");
     }
 
+    restoreState();
     calculate();
 
     rawEl.addEventListener("input", () => { maskThousands(rawEl); calculate(); });

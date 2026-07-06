@@ -821,7 +821,31 @@
       goalNoteEl.textContent = "";
     }
 
+    // Persistência dos campos (localStorage) — os valores sobrevivem ao F5.
+    const STORE_KEY = "tibiaTools:exp";
+    const STORE_TEXT = ["raw", "hunt", "stamina", "goldPerTc", "reaisPer250", "meta", "horasDia"];
+    const STORE_CHECK = ["doubleFlag"];
+
+    function saveState() {
+      try {
+        const s = {};
+        STORE_TEXT.forEach(id => { const el = document.getElementById(id); if (el) s[id] = el.value; });
+        STORE_CHECK.forEach(id => { const el = document.getElementById(id); if (el) s[id] = el.checked; });
+        localStorage.setItem(STORE_KEY, JSON.stringify(s));
+      } catch (e) {}
+    }
+
+    function restoreState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+        if (!s) return;
+        STORE_TEXT.forEach(id => { const el = document.getElementById(id); if (el && typeof s[id] === "string") el.value = s[id]; });
+        STORE_CHECK.forEach(id => { const el = document.getElementById(id); if (el && typeof s[id] === "boolean") el.checked = s[id]; });
+      } catch (e) {}
+    }
+
     function calculate() {
+      saveState();
       buildCostTable();
 
       const raw = parseNumber(rawEl.value);
@@ -942,6 +966,7 @@
       buildGoalTable(raw, withDouble);
     }
 
+    restoreState();
     calculate();
 
     rawEl.addEventListener("input", () => {

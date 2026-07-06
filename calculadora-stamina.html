@@ -387,7 +387,29 @@
       recoveryExplainEl.textContent = "";
     }
 
+    // Persistência dos campos (localStorage) — os valores sobrevivem ao F5.
+    // A data/hora alvo não é salva de propósito (ficaria no passado depois).
+    const STORE_KEY = "tibiaTools:stamina";
+    const STORE_TEXT = ["current", "target"];
+
+    function saveState() {
+      try {
+        const s = {};
+        STORE_TEXT.forEach(id => { const el = document.getElementById(id); if (el) s[id] = el.value; });
+        localStorage.setItem(STORE_KEY, JSON.stringify(s));
+      } catch (e) {}
+    }
+
+    function restoreState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+        if (!s) return;
+        STORE_TEXT.forEach(id => { const el = document.getElementById(id); if (el && typeof s[id] === "string") el.value = s[id]; });
+      } catch (e) {}
+    }
+
     function calculate() {
+      saveState();
       const current = parseStamina(currentEl.value);
       const target = parseStamina(targetEl.value);
       const targetDate = new Date(targetDateEl.value);
@@ -481,6 +503,7 @@
     }
 
     setDefaultTargetDate();
+    restoreState();
     calculate();
 
     currentEl.addEventListener("input", calculate);
