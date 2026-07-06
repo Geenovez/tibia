@@ -296,7 +296,7 @@
         <div class="field">
           <label for="hunt">Tempo de caça</label>
           <input id="hunt" inputmode="numeric" placeholder="3:00" value="3:00" />
-          <div class="hint">Formato horas:minutos.</div>
+          <div class="hint">Digite só números — o ":" entra sozinho (ex.: 300 → 3:00).</div>
         </div>
 
         <div class="row">
@@ -380,6 +380,21 @@
       const clean = value.trim().replace(",", ":").replace(".", ":");
       const m = clean.match(/^(\d{1,3}):([0-5]\d)$/);
       return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+    }
+
+    // Máscara de tempo (mobile-friendly): digita só números e o ":" entra sozinho.
+    // Os 2 últimos dígitos viram minutos. Ex.: "300" -> "3:00"; "3900" -> "39:00".
+    function maskTime(el) {
+      const d = el.value.replace(/\D/g, "").slice(0, 4);
+      el.value = d.length > 2 ? d.slice(0, -2) + ":" + d.slice(-2) : d;
+      const len = el.value.length;
+      try { el.setSelectionRange(len, len); } catch (e) {}
+    }
+
+    // Ao sair do campo, completa horas soltas: "3" -> "3:00"; "42" -> "42:00".
+    function padTime(el) {
+      const d = el.value.replace(/\D/g, "");
+      if (d.length >= 1 && d.length <= 2) el.value = d + ":00";
     }
 
     function fmtExp(v) { return Math.round(v).toLocaleString("pt-BR"); }
@@ -570,7 +585,8 @@
 
     rawEl.addEventListener("input", () => { maskThousands(rawEl); calculate(); });
     goldPerTcEl.addEventListener("input", () => { maskThousands(goldPerTcEl); calculate(); });
-    huntEl.addEventListener("input", calculate);
+    huntEl.addEventListener("input", () => { maskTime(huntEl); calculate(); });
+    huntEl.addEventListener("blur", () => { padTime(huntEl); calculate(); });
     reaisPer250El.addEventListener("input", calculate);
     doubleFlagEl.addEventListener("change", calculate);
   </script>

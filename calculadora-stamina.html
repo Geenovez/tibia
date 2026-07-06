@@ -233,7 +233,7 @@
           <div class="field">
             <label for="current">Stamina atual</label>
             <input id="current" inputmode="numeric" placeholder="36:22" value="36:22" />
-            <div class="hint">Formato: horas:minutos</div>
+            <div class="hint">Só números — o ":" entra sozinho (ex.: 3622 → 36:22)</div>
           </div>
 
           <div class="field">
@@ -324,6 +324,21 @@
       const match = clean.match(/^(\d{1,3}):([0-5]\d)$/);
       if (!match) return null;
       return Number(match[1]) * 60 + Number(match[2]);
+    }
+
+    // Máscara de tempo (mobile-friendly): digita só números e o ":" entra sozinho.
+    // Os 2 últimos dígitos viram minutos. Ex.: "3622" -> "36:22".
+    function maskTime(el) {
+      const d = el.value.replace(/\D/g, "").slice(0, 4);
+      el.value = d.length > 2 ? d.slice(0, -2) + ":" + d.slice(-2) : d;
+      const len = el.value.length;
+      try { el.setSelectionRange(len, len); } catch (e) {}
+    }
+
+    // Ao sair do campo, completa horas soltas: "39" -> "39:00".
+    function padTime(el) {
+      const d = el.value.replace(/\D/g, "");
+      if (d.length >= 1 && d.length <= 2) el.value = d + ":00";
     }
 
     function recoverStamina(startStamina, offlineMinutes) {
@@ -506,8 +521,10 @@
     restoreState();
     calculate();
 
-    currentEl.addEventListener("input", calculate);
-    targetEl.addEventListener("input", calculate);
+    currentEl.addEventListener("input", () => { maskTime(currentEl); calculate(); });
+    currentEl.addEventListener("blur", () => { padTime(currentEl); calculate(); });
+    targetEl.addEventListener("input", () => { maskTime(targetEl); calculate(); });
+    targetEl.addEventListener("blur", () => { padTime(targetEl); calculate(); });
     targetDateEl.addEventListener("input", calculate);
   </script>
 </body>
