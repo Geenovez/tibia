@@ -157,13 +157,19 @@
       border-radius: 8px;
       padding: 12px 14px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      flex-direction: column;
+      gap: 8px;
     }
     .card.feature {
       border-color: #cce2d9;
       background: var(--accent-2);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
 
     .card .exp {
@@ -191,6 +197,14 @@
       font-variant-numeric: tabular-nums;
       margin-top: 2px;
     }
+    .card .cost-line {
+      font-size: 11.5px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      border-top: 1px dashed var(--line);
+      padding-top: 7px;
+    }
+    .card .cost-line b { color: var(--warn); font-weight: 800; }
 
     .formula {
       background: var(--accent-2);
@@ -308,22 +322,6 @@
     </section>
 
     <section class="table-section">
-      <h2>XP Boosts e custo</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>XP Boosts</th>
-              <th>Bônus</th>
-              <th>EXP total</th>
-              <th>TC</th>
-              <th>Gold</th>
-              <th>R$</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
       <p class="foot-note" id="footNote"></p>
     </section>
   </main>
@@ -340,7 +338,6 @@
     const reaisPer250El = document.getElementById("reaisPer250");
     const doubleFlagEl = document.getElementById("doubleFlag");
     const cardsEl = document.getElementById("cards");
-    const tableBodyEl = document.getElementById("tableBody");
     const footNoteEl = document.getElementById("footNote");
     const formulaEl = document.getElementById("formula");
 
@@ -504,7 +501,6 @@
 
       if (raw === null || raw <= 0 || huntMin === null || huntMin <= 0) {
         cardsEl.innerHTML = `<div class="card"><div class="tag">Preencha EXP e tempo válidos</div></div>`;
-        tableBodyEl.innerHTML = "";
         footNoteEl.textContent = "";
         formulaEl.textContent = "";
         return;
@@ -523,56 +519,35 @@
       const cBase = computeExp(raw, huntMin, 0, 0, withDouble);
       const cStam = computeExp(raw, huntMin, MAX_STAMINA, 0, withDouble);
 
-      // Cada card = a caça INTEIRA num cenário. O % é o efetivo médio (stamina só nas 3 primeiras horas).
+      // Cada card = a caça INTEIRA num cenário: EXP, composição por hora e o custo dos boosts.
       const cards = [
-        { tag: `${hd} · sem bônus`, segs: segmentText(huntMin, 0, 0, withDouble), exp: cBase, feature: false, ok: false },
-        { tag: `${hd} · stamina`, segs: segmentText(huntMin, MAX_STAMINA, 0, withDouble), exp: cStam, feature: false, ok: true }
+        { tag: `${hd} · sem bônus`, segs: segmentText(huntMin, 0, 0, withDouble), cost: "grátis", exp: cBase, feature: false, ok: false },
+        { tag: `${hd} · stamina`, segs: segmentText(huntMin, MAX_STAMINA, 0, withDouble), cost: "grátis", exp: cStam, feature: false, ok: true }
       ];
       for (let b = 1; b <= usefulBoosts; b++) {
         const c = computeExp(raw, huntMin, MAX_STAMINA, b, withDouble);
+        const tc = boostCost(b);
+        const goldStr = goldPerTc ? fmtGold(tc * goldPerTc) : "?";
+        const reaisStr = reaisPer250 !== null ? fmtReais(tc * reaisPer250 / 250) : "?";
         cards.push({
           tag: `${hd} · stamina + ${b} boost${b > 1 ? "s" : ""}`,
           segs: segmentText(huntMin, MAX_STAMINA, b, withDouble),
+          cost: `${boostCostText(b)} TC · ${goldStr} · <b>${reaisStr}</b>`,
           exp: c, feature: b === usefulBoosts, ok: true
         });
       }
       cardsEl.innerHTML = cards.map(c => `
         <div class="card${c.feature ? " feature" : ""}">
-          <div class="exp${c.ok ? " ok" : ""}">${fmtExp(c.exp)}</div>
-          <div class="side">
-            <div class="tag">${c.tag}</div>
-            <div class="segs">${c.segs}</div>
+          <div class="card-top">
+            <div class="exp${c.ok ? " ok" : ""}">${fmtExp(c.exp)}</div>
+            <div class="side">
+              <div class="tag">${c.tag}</div>
+              <div class="segs">${c.segs}</div>
+            </div>
           </div>
+          <div class="cost-line">${c.cost}</div>
         </div>
       `).join("");
-
-      // Tabela: nº de boosts (0..úteis), com stamina cheia.
-      // Primeira linha: 100% cru (base, sem stamina e sem boost).
-      let rows = `
-          <tr>
-            <td>Sem bônus</td>
-            <td class="pct-col">${fmtPct(pct(cBase))}</td>
-            <td>${fmtExp(cBase)}</td>
-            <td>—</td>
-            <td>—</td>
-            <td>—</td>
-          </tr>`;
-      for (let b = 0; b <= usefulBoosts; b++) {
-        const total = computeExp(raw, huntMin, MAX_STAMINA, b, withDouble);
-        const tc = boostCost(b);
-        const goldStr = boostGoldText(b, goldPerTc);
-        const reaisStr = boostReaisText(b, reaisPer250);
-        rows += `
-          <tr class="${b === 0 ? "base-row" : ""}">
-            <td>${b === 0 ? "Stamina bônus" : b + "×"}</td>
-            <td class="pct-col">${fmtPct(pct(total))}</td>
-            <td>${fmtExp(total)}</td>
-            <td class="${tc > 0 ? "cost" : ""}">${boostCostText(b)}</td>
-            <td>${goldStr}</td>
-            <td>${reaisStr}</td>
-          </tr>`;
-      }
-      tableBodyEl.innerHTML = rows;
 
       formulaEl.innerHTML =
         `Base 100% + Stamina <strong>+50%</strong>` + (withDouble ? ` + Double <strong>+100%</strong>` : ``)
@@ -581,7 +556,7 @@
         + `.<br>Rate: 1 TC = ${goldPerTc ? goldPerTc.toLocaleString("pt-BR") : "?"} gold · 250 TC = ${reaisPer250 !== null ? fmtReais(reaisPer250) : "?"}.`;
 
       const noteParts = [
-        `Os % são a média efetiva da caça inteira. A stamina bônus cobre só as 3 primeiras horas (${staminaPct}%/h); depois é ${basePct}% (base). Cada XP Boost leva 1h ao teto de ${boostPct}%, um por vez.`,
+        `A composição mostra as horas em cada nível de bônus. A stamina bônus cobre só as 3 primeiras horas (${staminaPct}%/h); depois é ${basePct}% (base). Cada XP Boost leva 1h ao teto de ${boostPct}%, um por vez.`,
         `Período a 100% (cru): ${fmtExp(rawPeriod)}.`
       ];
       if (hours > 3.5) {
