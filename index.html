@@ -25,15 +25,16 @@
       margin: 0;
       min-height: 100vh;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
       background: var(--bg);
       color: var(--ink);
       display: grid;
       place-items: center;
-      padding: 24px;
+      padding: 22px;
     }
 
     main {
-      width: min(960px, 100%);
+      width: min(860px, 100%);
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -42,30 +43,30 @@
     }
 
     header {
-      padding: 26px 28px 18px;
+      padding: 18px 22px 14px;
       border-bottom: 1px solid var(--line);
       background: linear-gradient(180deg, #fff, #fbfaf7);
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(24px, 4vw, 36px);
-      line-height: 1.05;
+      font-size: clamp(19px, 2.6vw, 24px);
+      line-height: 1.1;
       letter-spacing: 0;
     }
 
     .subtitle {
-      margin: 10px 0 0;
+      margin: 7px 0 0;
       color: var(--muted);
-      font-size: 15px;
-      line-height: 1.45;
+      font-size: 12.5px;
+      line-height: 1.4;
     }
 
     .tools {
-      padding: 26px 28px 28px;
+      padding: 20px 22px 22px;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 14px;
     }
 
     .tool {
@@ -74,7 +75,7 @@
       border: 1px solid var(--line);
       background: #fff;
       border-radius: 8px;
-      padding: 20px;
+      padding: 16px;
       text-decoration: none;
       color: inherit;
       transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
@@ -87,51 +88,51 @@
     }
 
     .tool .icon {
-      font-size: 30px;
+      font-size: 24px;
       line-height: 1;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .tool h2 {
-      margin: 0 0 8px;
-      font-size: 19px;
+      margin: 0 0 6px;
+      font-size: 15px;
       font-weight: 850;
     }
 
     .tool p {
-      margin: 0 0 16px;
+      margin: 0 0 12px;
       color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 12.5px;
+      line-height: 1.45;
       flex-grow: 1;
     }
 
     .tool .open {
       color: var(--accent);
       font-weight: 800;
-      font-size: 14px;
+      font-size: 12.5px;
     }
 
     footer {
-      padding: 16px 28px 22px;
+      padding: 14px 22px 18px;
       border-top: 1px solid var(--line);
       background: #fbfaf7;
       color: var(--muted);
-      font-size: 12.5px;
+      font-size: 11.5px;
       line-height: 1.5;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 720px) {
       body {
-        padding: 14px;
+        padding: 12px;
         place-items: start center;
       }
 
       .tools { grid-template-columns: 1fr; }
 
       header, .tools, footer {
-        padding-left: 18px;
-        padding-right: 18px;
+        padding-left: 16px;
+        padding-right: 16px;
       }
     }
   </style>
@@ -162,6 +163,16 @@
         <p>
           A partir da sua EXP/hora base, veja quanto você faz combinando bônus de
           stamina, XP Boost e Double Experience — e quantos Tibia Coins cada opção custa.
+        </p>
+        <span class="open">Abrir calculadora →</span>
+      </a>
+
+      <a class="tool" href="calculadora-xp.html">
+        <div class="icon">⚡</div>
+        <h2>Calculadora de XP (%)</h2>
+        <p>
+          Versão enxuta e direta, focada no % de bônus (150%, 225%…). Mostra o total
+          por nível de bônus e o custo dos XP Boosts em TC, gold e reais.
         </p>
         <span class="open">Abrir calculadora →</span>
       </a>

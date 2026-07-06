@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de XP (%) - Tibia</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f3ec;
+      --panel: #ffffff;
+      --ink: #201b16;
+      --muted: #6f675e;
+      --line: #ded6ca;
+      --accent: #2f6f5e;
+      --accent-2: #e7f2ed;
+      --warn: #8a5a00;
+      --danger: #a23b35;
+      --shadow: 0 14px 40px rgba(32, 27, 22, 0.11);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 22px;
+    }
+
+    main {
+      width: min(860px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fbfaf7);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(19px, 2.6vw, 24px);
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .subtitle {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-bottom: 9px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .home-link:hover { text-decoration: underline; }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form {
+      padding: 20px 22px 22px;
+      border-right: 1px solid var(--line);
+    }
+
+    .results {
+      padding: 20px 22px 22px;
+      background: #fbfaf7;
+      display: grid;
+      gap: 11px;
+      align-content: start;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    input {
+      width: 100%;
+      border: 1px solid #cfc6b9;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 7px;
+      padding: 10px 11px;
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.16);
+    }
+
+    .hint {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 0;
+    }
+    .check input {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+      margin: 0;
+      padding: 0;
+      accent-color: var(--accent);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card.feature {
+      border-color: #cce2d9;
+      background: var(--accent-2);
+    }
+
+    .card .pct {
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .card .pct.ok { color: var(--accent); }
+
+    .card .side {
+      text-align: right;
+      min-width: 0;
+    }
+    .card .exp {
+      font-size: 15px;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+    }
+    .card .tag {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .formula {
+      background: var(--accent-2);
+      border: 1px solid #cce2d9;
+      border-radius: 7px;
+      padding: 10px 12px;
+      color: #244c42;
+      font-size: 11.5px;
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+
+    .table-section {
+      padding: 20px 22px 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    thead th {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+      text-align: right;
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--line);
+      white-space: nowrap;
+    }
+    thead th:first-child { text-align: left; }
+
+    tbody td {
+      padding: 9px 10px;
+      text-align: right;
+      border-bottom: 1px solid var(--line);
+      font-variant-numeric: tabular-nums;
+    }
+    tbody td:first-child { text-align: left; font-weight: 700; }
+
+    tbody tr:hover { background: #fbfaf7; }
+    tbody tr.base-row { background: var(--accent-2); }
+    tbody tr.base-row:hover { background: #dcebe4; }
+
+    .pct-col { color: var(--accent); font-weight: 800; }
+    .cost { color: var(--warn); }
+
+    .foot-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 12px; place-items: start center; }
+      .content { grid-template-columns: 1fr; }
+      .form { border-right: 0; border-bottom: 1px solid var(--line); }
+      header, .form, .results, .table-section { padding-left: 16px; padding-right: 16px; }
+      .row { grid-template-columns: 1fr; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a class="home-link" href="index.html">← Calculadoras</a>
+      <h1>Calculadora de XP</h1>
+      <p class="subtitle">
+        Foco no % de bônus. Informe sua EXP/hora base (100%) e veja o total por nível de bônus
+        e o custo dos XP Boosts. Assume stamina cheia (bônus nas 3 primeiras horas).
+      </p>
+    </header>
+
+    <section class="content">
+      <div class="form">
+        <div class="field">
+          <label for="raw">EXP/HR RAW (100%)</label>
+          <input id="raw" inputmode="numeric" placeholder="ex: 6.500.000" value="6.500.000" />
+          <div class="hint">Sua experiência por hora sem bônus.</div>
+        </div>
+
+        <div class="field">
+          <label for="hunt">Tempo de caça</label>
+          <input id="hunt" inputmode="numeric" placeholder="3:00" value="3:00" />
+          <div class="hint">Formato horas:minutos.</div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="goldPerTc">Gold por 1 TC</label>
+            <input id="goldPerTc" inputmode="numeric" placeholder="37.000" value="37.000" />
+          </div>
+          <div class="field">
+            <label for="reaisPer250">R$ por 250 TC</label>
+            <input id="reaisPer250" inputmode="decimal" placeholder="52" value="52" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="check"><input type="checkbox" id="doubleFlag" /> Double Experience (+100%)</label>
+          <div class="hint">Oculto por padrão. Marque para ver os % com o evento.</div>
+        </div>
+
+        <div class="formula" id="formula"></div>
+      </div>
+
+      <div class="results" id="cards"></div>
+    </section>
+
+    <section class="table-section">
+      <h2>XP Boosts e custo</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>XP Boosts</th>
+              <th>Bônus</th>
+              <th>EXP total</th>
+              <th>TC</th>
+              <th>Gold</th>
+              <th>R$</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <p class="foot-note" id="footNote"></p>
+    </section>
+  </main>
+
+  <script>
+    const BONUS_LIMIT = 39 * 60;
+    const MAX_STAMINA = 42 * 60;
+    const BOOST_PRICES = [30, 45, 90, 180, 360];
+    const MAX_BOOSTS = 5;
+
+    const rawEl = document.getElementById("raw");
+    const huntEl = document.getElementById("hunt");
+    const goldPerTcEl = document.getElementById("goldPerTc");
+    const reaisPer250El = document.getElementById("reaisPer250");
+    const doubleFlagEl = document.getElementById("doubleFlag");
+    const cardsEl = document.getElementById("cards");
+    const tableBodyEl = document.getElementById("tableBody");
+    const footNoteEl = document.getElementById("footNote");
+    const formulaEl = document.getElementById("formula");
+
+    function pad(v) { return String(v).padStart(2, "0"); }
+
+    function parseNumber(value) {
+      const digits = value.replace(/[^\d]/g, "");
+      return digits ? Number(digits) : null;
+    }
+
+    function parseDecimal(value) {
+      const clean = value.trim().replace(/\./g, "").replace(",", ".").replace(/[^\d.]/g, "");
+      const n = parseFloat(clean);
+      return Number.isNaN(n) ? null : n;
+    }
+
+    function groupThousands(digits) {
+      return digits.replace(/^0+(?=\d)/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function maskThousands(el) {
+      const oldValue = el.value;
+      const caret = el.selectionStart ?? oldValue.length;
+      const before = oldValue.slice(0, caret).replace(/\D/g, "").length;
+      const formatted = groupThousands(oldValue.replace(/\D/g, ""));
+      el.value = formatted;
+      let newCaret = formatted.length;
+      if (before === 0) { newCaret = 0; }
+      else {
+        let count = 0;
+        for (let i = 0; i < formatted.length; i++) {
+          if (/\d/.test(formatted[i])) count++;
+          if (count === before) { newCaret = i + 1; break; }
+        }
+      }
+      el.setSelectionRange(newCaret, newCaret);
+    }
+
+    function parseTime(value) {
+      const clean = value.trim().replace(",", ":").replace(".", ":");
+      const m = clean.match(/^(\d{1,3}):([0-5]\d)$/);
+      return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+    }
+
+    function fmtExp(v) { return Math.round(v).toLocaleString("pt-BR"); }
+
+    function shortNum(x) { return x.toLocaleString("pt-BR", { maximumFractionDigits: 2 }); }
+
+    function fmtGold(g) {
+      if (g >= 1e6) return shortNum(g / 1e6) + "kk";
+      if (g >= 1e3) return shortNum(g / 1e3) + "k";
+      return Math.round(g).toLocaleString("pt-BR");
+    }
+
+    function fmtReais(r) { return r.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+
+    // Percentual sem casas desnecessárias: 150, 137,5 etc.
+    function fmtPct(p) { return p.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%"; }
+
+    function boostCost(count) {
+      let total = 0;
+      for (let i = 0; i < count && i < BOOST_PRICES.length; i++) total += BOOST_PRICES[i];
+      return total;
+    }
+
+    // Custo em TC como soma detalhada. Ex.: 3 -> "30+45+90 = 165"; 1 -> "30".
+    function boostCostText(count) {
+      if (count <= 0) return "—";
+      const parts = BOOST_PRICES.slice(0, count);
+      const sum = parts.reduce((a, b) => a + b, 0);
+      return count === 1 ? String(parts[0]) : parts.join("+") + " = " + sum;
+    }
+
+    // Gold de cada boost somado. Ex.: "1,11kk+1,67kk+3,33kk = 6,11kk".
+    function boostGoldText(count, goldPerTc) {
+      if (count <= 0 || !goldPerTc) return "—";
+      const parts = BOOST_PRICES.slice(0, count).map(tc => tc * goldPerTc);
+      const sum = parts.reduce((a, b) => a + b, 0);
+      return count === 1 ? fmtGold(parts[0]) : parts.map(fmtGold).join("+") + " = " + fmtGold(sum);
+    }
+
+    // Reais de cada boost somado. Ex.: "6,24+9,36+18,72 = R$ 34,32".
+    function boostReaisText(count, reaisPer250) {
+      if (count <= 0 || reaisPer250 === null) return "—";
+      const parts = BOOST_PRICES.slice(0, count).map(tc => tc * reaisPer250 / 250);
+      const sum = parts.reduce((a, b) => a + b, 0);
+      const money = x => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return count === 1 ? fmtReais(parts[0]) : parts.map(money).join("+") + " = " + fmtReais(sum);
+    }
+
+    // Aditivos: base (100%) + double (+100%) + stamina (+50%, primeiras 3h).
+    // O XP Boost multiplica por 1,5 esse total, na hora boostada (um por vez, em sequência).
+    // Ex.: (100+100+50) × 1,5 = 375%.
+    function computeExp(rawPerHour, huntMin, staminaStart, boostCount, doubleOn) {
+      const perMin = rawPerHour / 60;
+      const staminaMin = Math.min(Math.max(0, staminaStart - BONUS_LIMIT), huntMin);
+      const boostMin = Math.min(boostCount * 60, huntMin);
+      const d = doubleOn ? 1 : 0;
+
+      const overlap = Math.min(staminaMin, boostMin);           // (base+double+stamina) × 1,5
+      const staminaOnly = Math.max(0, staminaMin - boostMin);   // (base+double+stamina)
+      const boostOnly = Math.max(0, boostMin - staminaMin);     // (base+double) × 1,5
+      const neither = huntMin - Math.max(staminaMin, boostMin); // (base+double)
+
+      return perMin * (
+        overlap * (1.5 + d) * 1.5 +
+        staminaOnly * (1.5 + d) +
+        boostOnly * (1 + d) * 1.5 +
+        neither * (1 + d)
+      );
+    }
+
+    function calculate() {
+      const raw = parseNumber(rawEl.value);
+      const huntMin = parseTime(huntEl.value);
+      const goldPerTc = parseNumber(goldPerTcEl.value);
+      const reaisPer250 = parseDecimal(reaisPer250El.value);
+      const withDouble = doubleFlagEl.checked;
+
+      if (raw === null || raw <= 0 || huntMin === null || huntMin <= 0) {
+        cardsEl.innerHTML = `<div class="card"><div class="tag">Preencha EXP e tempo válidos</div></div>`;
+        tableBodyEl.innerHTML = "";
+        footNoteEl.textContent = "";
+        formulaEl.textContent = "";
+        return;
+      }
+
+      const hours = huntMin / 60;
+      const rawPeriod = raw * hours;                 // 100% do período
+      const pct = total => (total / rawPeriod) * 100;
+      const usefulBoosts = Math.min(MAX_BOOSTS, Math.ceil(huntMin / 60));
+
+      // Cards: sem stamina (100%/200%), com stamina (150%/300%), com stamina + boost máx (225%/375%).
+      // Tetos por hora (constantes): o nº de boosts = quantas horas ficam no teto de boost.
+      const basePct = withDouble ? 200 : 100;
+      const staminaPct = withDouble ? 250 : 150;
+      const boostPct = withDouble ? 375 : 225;
+      const cBase = computeExp(raw, huntMin, 0, 0, withDouble);
+      const cStam = computeExp(raw, huntMin, MAX_STAMINA, 0, withDouble);
+
+      const cards = [
+        { tag: "sem bônus", pctStr: basePct + "%", exp: cBase, feature: false, ok: false },
+        { tag: "stamina", pctStr: staminaPct + "%", exp: cStam, feature: false, ok: true }
+      ];
+      const stamMin = Math.min(MAX_STAMINA - BONUS_LIMIT, huntMin); // minutos com bônus de stamina
+      for (let b = 1; b <= usefulBoosts; b++) {
+        const c = computeExp(raw, huntMin, MAX_STAMINA, b, withDouble);
+        const h225 = Math.min(b * 60, stamMin) / 60; // horas no teto (boost ∩ stamina)
+        cards.push({
+          tag: `${b} boost${b > 1 ? "s" : ""} · ${shortNum(h225)}h`,
+          pctStr: boostPct + "%",
+          exp: c, feature: b === usefulBoosts, ok: true
+        });
+      }
+      cardsEl.innerHTML = cards.map(c => `
+        <div class="card${c.feature ? " feature" : ""}">
+          <div class="pct${c.ok ? " ok" : ""}">${c.pctStr}</div>
+          <div class="side">
+            <div class="exp">${fmtExp(c.exp)}</div>
+            <div class="tag">${c.tag}</div>
+          </div>
+        </div>
+      `).join("");
+
+      // Tabela: nº de boosts (0..úteis), com stamina cheia.
+      // Primeira linha: 100% cru (base, sem stamina e sem boost).
+      let rows = `
+          <tr>
+            <td>Sem bônus</td>
+            <td class="pct-col">${basePct}%</td>
+            <td>${fmtExp(cBase)}</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>`;
+      for (let b = 0; b <= usefulBoosts; b++) {
+        const total = computeExp(raw, huntMin, MAX_STAMINA, b, withDouble);
+        const tc = boostCost(b);
+        const goldStr = boostGoldText(b, goldPerTc);
+        const reaisStr = boostReaisText(b, reaisPer250);
+        rows += `
+          <tr class="${b === 0 ? "base-row" : ""}">
+            <td>${b === 0 ? "Stamina bônus" : b + "×"}</td>
+            <td class="pct-col">${b === 0 ? staminaPct : boostPct}%</td>
+            <td>${fmtExp(total)}</td>
+            <td class="${tc > 0 ? "cost" : ""}">${boostCostText(b)}</td>
+            <td>${goldStr}</td>
+            <td>${reaisStr}</td>
+          </tr>`;
+      }
+      tableBodyEl.innerHTML = rows;
+
+      formulaEl.innerHTML =
+        `Base 100% + Stamina <strong>+50%</strong>` + (withDouble ? ` + Double <strong>+100%</strong>` : ``)
+        + `, e o <strong>XP Boost ×1,5</strong> multiplica esse total (1h por vez).`
+        + `<br>Ex.: ` + (withDouble ? `(100+100+50)×1,5 = <strong>375%</strong>` : `(100+50)×1,5 = <strong>225%</strong>`)
+        + `.<br>Rate: 1 TC = ${goldPerTc ? goldPerTc.toLocaleString("pt-BR") : "?"} gold · 250 TC = ${reaisPer250 !== null ? fmtReais(reaisPer250) : "?"}.`;
+
+      const noteParts = [
+        `% = teto por hora. Cada XP Boost eleva 1h a ${boostPct}% (um por vez); o resto da caça fica a ${staminaPct}% (stamina).`,
+        `Período a 100% (cru): ${fmtExp(rawPeriod)}.`
+      ];
+      if (hours > 3.5) {
+        noteParts.push(`Acima de 3:30/dia a stamina não regenera 100% à noite — para planejar, veja a Calculadora de stamina.`);
+      }
+      footNoteEl.textContent = noteParts.join(" ");
+    }
+
+    calculate();
+
+    rawEl.addEventListener("input", () => { maskThousands(rawEl); calculate(); });
+    goldPerTcEl.addEventListener("input", () => { maskThousands(goldPerTcEl); calculate(); });
+    huntEl.addEventListener("input", calculate);
+    reaisPer250El.addEventListener("input", calculate);
+    doubleFlagEl.addEventListener("change", calculate);
+  </script>
+</body>
+</html>

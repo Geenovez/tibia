@@ -25,15 +25,16 @@
       margin: 0;
       min-height: 100vh;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
       background: var(--bg);
       color: var(--ink);
       display: grid;
       place-items: center;
-      padding: 24px;
+      padding: 22px;
     }
 
     main {
-      width: min(960px, 100%);
+      width: min(860px, 100%);
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -42,29 +43,29 @@
     }
 
     header {
-      padding: 26px 28px 18px;
+      padding: 18px 22px 14px;
       border-bottom: 1px solid var(--line);
       background: linear-gradient(180deg, #fff, #fbfaf7);
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(24px, 4vw, 36px);
-      line-height: 1.05;
+      font-size: clamp(19px, 2.6vw, 24px);
+      line-height: 1.1;
       letter-spacing: 0;
     }
 
     h2 {
-      margin: 0 0 16px;
-      font-size: 18px;
+      margin: 0 0 12px;
+      font-size: 14px;
       font-weight: 850;
     }
 
     .subtitle {
-      margin: 10px 0 0;
+      margin: 7px 0 0;
       color: var(--muted);
-      font-size: 15px;
-      line-height: 1.45;
+      font-size: 12.5px;
+      line-height: 1.4;
     }
 
     .content {
@@ -73,31 +74,31 @@
     }
 
     .form {
-      padding: 26px 28px 28px;
+      padding: 20px 22px 22px;
       border-right: 1px solid var(--line);
     }
 
     .results {
-      padding: 26px 28px 28px;
+      padding: 20px 22px 22px;
       background: #fbfaf7;
     }
 
     label {
       display: block;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
-    .field { margin-bottom: 18px; }
+    .field { margin-bottom: 14px; }
 
     input {
       width: 100%;
       border: 1px solid #cfc6b9;
       background: #fff;
       color: var(--ink);
-      border-radius: 8px;
-      padding: 13px 14px;
+      border-radius: 7px;
+      padding: 10px 11px;
       font: inherit;
       outline: none;
     }
@@ -108,26 +109,26 @@
     }
 
     .hint {
-      margin-top: 6px;
+      margin-top: 5px;
       color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
+      font-size: 11px;
+      line-height: 1.3;
     }
 
     .check {
       display: flex;
       align-items: flex-start;
-      gap: 9px;
+      gap: 8px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       margin-bottom: 0;
       line-height: 1.35;
     }
 
     .check input {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       flex: 0 0 auto;
       margin: 0;
       padding: 0;
@@ -137,12 +138,12 @@
     button {
       width: 100%;
       border: 0;
-      border-radius: 8px;
+      border-radius: 7px;
       background: var(--accent);
       color: #fff;
       font-weight: 800;
-      font-size: 15px;
-      padding: 14px 16px;
+      font-size: 14px;
+      padding: 11px 14px;
       cursor: pointer;
     }
 
@@ -152,8 +153,8 @@
       border: 1px solid var(--line);
       background: #fff;
       border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 14px;
+      padding: 13px 14px;
+      margin-bottom: 11px;
     }
 
     .card.feature {
@@ -163,22 +164,22 @@
 
     .label {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     .big {
-      font-size: clamp(28px, 4.5vw, 40px);
+      font-size: clamp(22px, 3.5vw, 28px);
       font-weight: 900;
       line-height: 1;
       letter-spacing: 0;
     }
 
     .medium {
-      font-size: 22px;
+      font-size: 17px;
       font-weight: 850;
       line-height: 1.15;
     }
@@ -189,17 +190,17 @@
 
     .explain {
       color: var(--muted);
-      font-size: 14px;
+      font-size: 12.5px;
       line-height: 1.45;
-      margin: 12px 0 0;
+      margin: 10px 0 0;
     }
 
     .calc {
-      margin-top: 10px;
-      padding-top: 10px;
+      margin-top: 9px;
+      padding-top: 9px;
       border-top: 1px dashed var(--line);
       color: var(--muted);
-      font-size: 12.5px;
+      font-size: 11.5px;
       line-height: 1.5;
       font-variant-numeric: tabular-nums;
     }
@@ -208,10 +209,10 @@
 
     .home-link {
       display: inline-block;
-      margin-bottom: 12px;
+      margin-bottom: 9px;
       color: var(--accent);
       text-decoration: none;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
     }
 
@@ -220,22 +221,22 @@
     .formula {
       background: var(--accent-2);
       border: 1px solid #cce2d9;
-      border-radius: 8px;
-      padding: 13px 14px;
+      border-radius: 7px;
+      padding: 10px 12px;
       color: #244c42;
-      font-size: 13px;
+      font-size: 11.5px;
       line-height: 1.5;
-      margin-top: 16px;
+      margin-top: 14px;
     }
 
     .row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
     }
 
     .table-section {
-      padding: 26px 28px 28px;
+      padding: 20px 22px 22px;
       border-top: 1px solid var(--line);
       background: var(--panel);
     }
@@ -245,17 +246,17 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
+      font-size: 12.5px;
     }
 
     thead th {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       color: var(--muted);
       text-align: right;
-      padding: 9px 12px;
+      padding: 8px 10px;
       border-bottom: 1px solid var(--line);
       white-space: nowrap;
     }
@@ -268,7 +269,7 @@
     .hide-double .dbl-col { display: none; }
 
     tbody td {
-      padding: 11px 12px;
+      padding: 9px 10px;
       text-align: right;
       border-bottom: 1px solid var(--line);
       font-variant-numeric: tabular-nums;
@@ -290,7 +291,7 @@
     .cost { color: var(--warn); font-weight: 700; }
     .tag {
       display: inline-block;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.03em;
@@ -298,20 +299,20 @@
       background: #fff;
       border: 1px solid #cce2d9;
       border-radius: 999px;
-      padding: 2px 8px;
+      padding: 2px 7px;
       margin-left: 8px;
     }
 
     .foot-note {
-      margin-top: 14px;
+      margin-top: 12px;
       color: var(--muted);
-      font-size: 12.5px;
+      font-size: 11.5px;
       line-height: 1.5;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 720px) {
       body {
-        padding: 14px;
+        padding: 12px;
         place-items: start center;
       }
 
@@ -323,8 +324,8 @@
       }
 
       header, .form, .results, .table-section {
-        padding-left: 18px;
-        padding-right: 18px;
+        padding-left: 16px;
+        padding-right: 16px;
       }
 
       .row {
@@ -375,7 +376,7 @@
         <div class="row">
           <div class="field">
             <label for="goldPerTc">Gold Coins por 1 Tibia Coin</label>
-            <input id="goldPerTc" inputmode="numeric" placeholder="38.000" value="38.000" />
+            <input id="goldPerTc" inputmode="numeric" placeholder="37.000" value="37.000" />
             <div class="hint">Preço de 1 TC em gold.</div>
           </div>
 
@@ -387,13 +388,12 @@
         </div>
 
         <div class="formula">
-          Fórmula do Tibia:
-          <strong>(1 base + 1 double + 0,5 boost) × 1,5 stamina</strong><br>
-          • <strong>Double Experience</strong> e <strong>XP Boost</strong> são <strong>somados ao base</strong>
-          (+100% e +50% do base). Ex.: base + double + boost = 250%.<br>
-          • <strong>Stamina bônus</strong> (39:00–42:00) é a exceção: <strong>multiplica</strong> por
-          <strong>1,5</strong> tudo o que é ganho na janela. Ex.: 250% × 1,5 = 375%.<br>
-          • XP Boost dura 1h de caça (máx. 5/dia). Preço no dia (TC): 30 · 45 · 90 · 180 · 360.<br>
+          Fórmula: <strong>(base 100% + stamina 50% + double 100%) × 1,5 do XP Boost</strong><br>
+          • <strong>Stamina bônus</strong> (39:00–42:00) = <strong>+50%</strong> do base ·
+          <strong>Double</strong> = <strong>+100%</strong> do base — somados.<br>
+          • O <strong>XP Boost</strong> é o multiplicador: <strong>×1,5</strong> sobre esse total,
+          1h por vez (um de cada vez). Ex.: (100+100+50)×1,5 = <strong>375%</strong>.<br>
+          • XP Boost: máx. 5/dia. Preço no dia (TC): 30 · 45 · 90 · 180 · 360.<br>
           Obs.: abaixo de 14:00 de stamina a exp cai 50% no jogo — não considerado aqui.
         </div>
       </div>
@@ -642,41 +642,67 @@
       return total;
     }
 
-    // Fórmula do Tibia: (1 base + 1 double + 0,5 boost) × 1,5 stamina.
-    // Ou seja: Double e XP Boost são ADITIVOS ao base; a stamina verde é a única
-    // MULTIPLICATIVA — multiplica por 1,5 tudo o que é ganho na janela de stamina.
-    // Boost e stamina começam no início da caça, então se sobrepõem (o boost também
-    // é multiplicado pela stamina durante a sobreposição).
+    // Custo em TC como soma detalhada. Ex.: 3 -> "30+45+90 = 165"; 1 -> "30".
+    function boostCostText(count) {
+      if (count <= 0) return "—";
+      const parts = BOOST_PRICES.slice(0, count);
+      const sum = parts.reduce((a, b) => a + b, 0);
+      return count === 1 ? String(parts[0]) : parts.join("+") + " = " + sum;
+    }
+
+    // Gold de cada boost somado. Ex.: "1,14kk+1,71kk+3,42kk = 6,27kk".
+    function boostGoldText(count, goldPerTc) {
+      if (count <= 0 || !goldPerTc) return "—";
+      const parts = BOOST_PRICES.slice(0, count).map(tc => tc * goldPerTc);
+      const sum = parts.reduce((a, b) => a + b, 0);
+      return count === 1 ? formatGold(parts[0]) : parts.map(formatGold).join("+") + " = " + formatGold(sum);
+    }
+
+    // Reais de cada boost somado. Ex.: "6,24+9,36+18,72 = R$ 34,32".
+    function boostReaisText(count, reaisPer250) {
+      if (count <= 0 || reaisPer250 === null) return "—";
+      const parts = BOOST_PRICES.slice(0, count).map(tc => tc * reaisPer250 / 250);
+      const sum = parts.reduce((a, b) => a + b, 0);
+      const money = x => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return count === 1 ? formatReais(parts[0]) : parts.map(money).join("+") + " = " + formatReais(sum);
+    }
+
+    // Aditivos: base (100%) + double (+100%) + stamina (+50%, primeiras 3h).
+    // O XP Boost multiplica por 1,5 esse total, na hora boostada (um por vez, em sequência).
+    // Ex.: (100+100+50) × 1,5 = 375%. Boost e stamina começam no início da caça.
     function computeExp(rawPerHour, huntMin, staminaStart, boostCount, doubleOn) {
       const perMin = rawPerHour / 60;
       const staminaBonusMin = Math.min(Math.max(0, staminaStart - BONUS_LIMIT), huntMin);
       const boostMin = Math.min(boostCount * 60, huntMin);
-      const additive = 1 + (doubleOn ? 1 : 0);            // base (+ double), parte aditiva
-      const overlap = Math.min(boostMin, staminaBonusMin); // minutos com boost E stamina
+      const d = doubleOn ? 1 : 0;
 
-      const base = perMin * huntMin;
-      const doubleExtra = doubleOn ? perMin * huntMin : 0;
-      const boostExtra = perMin * 0.5 * boostMin;
-      // Stamina multiplica (+50%) tudo ganho na janela: base + double + boost daquela janela.
-      const staminaExtra = 0.5 * perMin * (additive * staminaBonusMin + 0.5 * overlap);
+      const overlap = Math.min(staminaBonusMin, boostMin);           // (base+double+stamina) × 1,5
+      const staminaOnly = Math.max(0, staminaBonusMin - boostMin);   // (base+double+stamina)
+      const boostOnly = Math.max(0, boostMin - staminaBonusMin);     // (base+double) × 1,5
+      const neither = huntMin - Math.max(staminaBonusMin, boostMin); // (base+double)
 
-      return {
-        total: base + doubleExtra + boostExtra + staminaExtra,
-        base,
-        doubleExtra,
-        boostExtra,
-        staminaExtra,
-        staminaBonusMin,
-        boostMin
-      };
+      const total = perMin * (
+        overlap * (1.5 + d) * 1.5 +
+        staminaOnly * (1.5 + d) +
+        boostOnly * (1 + d) * 1.5 +
+        neither * (1 + d)
+      );
+
+      // Decomposição para a memória de cálculo (soma = total):
+      const base = perMin * huntMin;                       // 100%
+      const doubleExtra = doubleOn ? perMin * huntMin : 0; // +100% do base
+      const staminaExtra = perMin * 0.5 * staminaBonusMin; // +50% do base na janela
+      const boostExtra = total - base - doubleExtra - staminaExtra; // uplift do ×1,5 do boost
+
+      return { total, base, doubleExtra, boostExtra, staminaExtra, staminaBonusMin, boostMin };
     }
 
-    // Monta a memória de cálculo: base + partes aditivas + stamina (×1,5 da janela) = total.
+    // Memória de cálculo: base + double + stamina somados, e o XP Boost multiplica (×1,5) as horas boostadas.
     function breakdown(run) {
       const parts = [`base <b>${formatExp(run.base)}</b>`];
       if (run.doubleExtra > 0) parts.push(`double +100% <b>${formatExp(run.doubleExtra)}</b>`);
-      if (run.boostExtra > 0) parts.push(`boost +50% <b>${formatExp(run.boostExtra)}</b>`);
-      if (run.staminaExtra > 0) parts.push(`stamina ×1,5 na janela <b>${formatExp(run.staminaExtra)}</b>`);
+      if (run.staminaExtra > 0) parts.push(`stamina +50% <b>${formatExp(run.staminaExtra)}</b>`);
+      if (run.boostExtra > 0) parts.push(`boost ×1,5 <b>${formatExp(run.boostExtra)}</b>`);
       return `${parts.join(" + ")} = <b>${formatExp(run.total)}</b>`;
     }
 
@@ -688,13 +714,13 @@
       costBodyEl.innerHTML = "";
       for (let b = 1; b <= MAX_BOOSTS; b++) {
         const tc = boostCost(b);
-        const goldStr = goldPerTc ? formatGold(tc * goldPerTc) : "—";
-        const reaisStr = reaisPer250 !== null ? formatReais(tc * reaisPer250 / 250) : "—";
+        const goldStr = boostGoldText(b, goldPerTc);
+        const reaisStr = boostReaisText(b, reaisPer250);
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${b}×</td>
-          <td class="cost">${tc.toLocaleString("pt-BR")}</td>
+          <td class="cost">${boostCostText(b)}</td>
           <td>${goldStr}</td>
           <td>${reaisStr}</td>
         `;
@@ -856,7 +882,7 @@
 
       boostTotalEl.textContent = formatExp(boostRun.total);
       boostExplainEl.textContent =
-        `1 XP Boost (${boostCost(1)} TC) cobre ${minutesToDuration(oneBoostMin)} da caça. Já com o bônus de stamina (×1,5 na janela).`;
+        `1 XP Boost (${boostCost(1)} TC) cobre ${minutesToDuration(oneBoostMin)} da caça, multiplicando (×1,5) base + stamina + double dessa hora.`;
       boostCalcEl.innerHTML = breakdown(boostRun);
 
       doubleTotalEl.textContent = formatExp(doubleRun.total);
@@ -866,8 +892,8 @@
 
       maxTotalEl.textContent = formatExp(maxRun.total);
       maxExplainEl.textContent = withDouble
-        ? `Base + Double + ${maxBoostLabel}, com a stamina multiplicando (×1,5) a janela.`
-        : `Base + ${maxBoostLabel}, com a stamina multiplicando (×1,5) a janela.`;
+        ? `(Base + stamina + Double) × 1,5 do ${maxBoostLabel} nas horas boostadas.`
+        : `(Base + stamina) × 1,5 do ${maxBoostLabel} nas horas boostadas.`;
       maxCalcEl.innerHTML = breakdown(maxRun);
 
       staminaTagEl.textContent = bonusMin > 0
