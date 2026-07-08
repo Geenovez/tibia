@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de TC por mês - Tibia</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f3ec;
+      --panel: #ffffff;
+      --ink: #201b16;
+      --muted: #6f675e;
+      --line: #ded6ca;
+      --accent: #2f6f5e;
+      --accent-2: #e7f2ed;
+      --warn: #8a5a00;
+      --danger: #a23b35;
+      --shadow: 0 14px 40px rgba(32, 27, 22, 0.11);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 22px;
+    }
+
+    main {
+      width: min(860px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fbfaf7);
+    }
+
+    h1 { margin: 0; font-size: clamp(19px, 2.6vw, 24px); line-height: 1.1; }
+    h2 { margin: 0 0 12px; font-size: 14px; font-weight: 850; }
+
+    .subtitle { margin: 7px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+
+    .home-link {
+      display: inline-block; margin-bottom: 9px;
+      color: var(--accent); text-decoration: none; font-size: 12px; font-weight: 800;
+    }
+    .home-link:hover { text-decoration: underline; }
+
+    .content { display: grid; grid-template-columns: 1fr 1fr; }
+
+    .form { padding: 20px 22px 22px; border-right: 1px solid var(--line); }
+    .results { padding: 20px 22px 22px; background: #fbfaf7; display: grid; gap: 10px; align-content: start; }
+
+    label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+    .field { margin-bottom: 14px; }
+
+    input {
+      width: 100%; border: 1px solid #cfc6b9; background: #fff; color: var(--ink);
+      border-radius: 7px; padding: 10px 11px; font: inherit; outline: none;
+    }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.16); }
+
+    .hint { margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.3; }
+
+    input[readonly] { background: #f1ede5; color: var(--muted); cursor: not-allowed; }
+
+    .check {
+      display: flex; align-items: flex-start; gap: 8px; cursor: pointer;
+      font-size: 12px; font-weight: 700; margin-bottom: 0; line-height: 1.35;
+    }
+    .check input { width: 16px; height: 16px; flex: 0 0 auto; margin: 0; padding: 0; accent-color: var(--accent); }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .card {
+      border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 12px 14px;
+      display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    }
+    .card.feature { border-color: #cce2d9; background: var(--accent-2); }
+    .card .label {
+      font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);
+    }
+    .card .val { font-size: 18px; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .card .val.ok { color: var(--accent); }
+
+    .section { padding: 20px 22px 22px; border-top: 1px solid var(--line); }
+
+    .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .proj {
+      border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fff;
+    }
+    .proj .out { margin-top: 10px; }
+    .proj .big { font-size: 20px; font-weight: 850; color: var(--accent); font-variant-numeric: tabular-nums; }
+    .proj .sub { margin-top: 3px; color: var(--muted); font-size: 12px; }
+
+    .conv {
+      display: grid; grid-template-columns: 1fr auto; gap: 10px 14px; align-items: center;
+      border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fff;
+    }
+    .conv + .conv { margin-top: 12px; }
+    .conv .out { font-variant-numeric: tabular-nums; font-size: 13px; }
+    .conv .out b { font-weight: 850; }
+    .conv .out .muted { color: var(--muted); }
+
+    .formula {
+      background: var(--accent-2); border: 1px solid #cce2d9; border-radius: 7px;
+      padding: 10px 12px; color: #244c42; font-size: 11.5px; line-height: 1.5; margin-top: 14px;
+    }
+
+    .foot-note { margin-top: 12px; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
+
+    @media (max-width: 720px) {
+      body { padding: 12px; place-items: start center; }
+      .content { grid-template-columns: 1fr; }
+      .form { border-right: 0; border-bottom: 1px solid var(--line); }
+      header, .form, .results, .section { padding-left: 16px; padding-right: 16px; }
+      .row, .proj-grid { grid-template-columns: 1fr; gap: 0; }
+      .proj-grid { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a class="home-link" href="index.html">← Calculadoras</a>
+      <h1>Calculadora de TC por mês</h1>
+      <p class="subtitle">
+        Quanto de Tibia Coins (e reais) você farma por mês. Informe seu gold/hora, o custo por hora
+        (imbuements/tokens) e sua rotina — a conta desconta o custo e converte em TC e R$.
+      </p>
+    </header>
+
+    <section class="content">
+      <div class="form">
+        <div class="row">
+          <div class="field">
+            <label for="goldHora">Gold por hora</label>
+            <input id="goldHora" inputmode="numeric" value="1.100.000" />
+            <div class="hint">Gold bruto farmado por hora.</div>
+          </div>
+          <div class="field">
+            <label for="custoHora">Custo por hora</label>
+            <input id="custoHora" inputmode="numeric" value="250.000" />
+            <div class="hint" id="custoHoraHint">Gasto/h com imbuement e token.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="check"><input type="checkbox" id="detalhar" /> Detalhar o custo por hora (imbue + joias + food)</label>
+          <div class="hint">Calcula o custo/hora a partir dos componentes e preenche o campo acima.</div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="valorTc">Valor de 1 TC (gold)</label>
+            <input id="valorTc" inputmode="numeric" value="37.000" />
+            <div class="hint">Quantos gold vale 1 TC.</div>
+          </div>
+          <div class="field">
+            <label for="valor250">Valor de 250 TC (R$)</label>
+            <input id="valor250" inputmode="decimal" value="52" />
+            <div class="hint">Preço de 250 TC em reais.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="horasDia">Horas por dia</label>
+            <input id="horasDia" inputmode="decimal" value="6" />
+          </div>
+          <div class="field">
+            <label for="diasMes">Dias por mês</label>
+            <input id="diasMes" inputmode="decimal" value="22" />
+          </div>
+        </div>
+
+        <div class="formula" id="formula"></div>
+      </div>
+
+      <div class="results">
+        <div class="card"><span class="label">TC / hora</span><span class="val" id="tcHora">--</span></div>
+        <div class="card"><span class="label">TC / dia</span><span class="val" id="tcDia">--</span></div>
+        <div class="card feature"><span class="label">TC / mês</span><span class="val ok" id="tcMes">--</span></div>
+        <div class="card"><span class="label">R$ / dia</span><span class="val" id="rsDia">--</span></div>
+        <div class="card feature"><span class="label">R$ / mês</span><span class="val ok" id="rsMes">--</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="detalheSection" style="display:none">
+      <h2>Detalhamento do custo por hora</h2>
+      <div class="row">
+        <div class="field">
+          <label for="imbueCusto">Imbuements — custo por 20h (gold)</label>
+          <input id="imbueCusto" inputmode="numeric" value="2.630.000" />
+          <div class="hint">Total pra encher as imbuements (gold/gold token). Duram 20h → ÷20.</div>
+        </div>
+        <div class="field">
+          <label for="silverPreco">Preço do silver token (gold)</label>
+          <input id="silverPreco" inputmode="numeric" value="60.000" />
+          <div class="hint">Silver recarrega colar e anel.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="colarSilver">Colar — silver por recarga</label>
+          <input id="colarSilver" inputmode="numeric" value="3" />
+        </div>
+        <div class="field">
+          <label for="colarDur">Colar — duração (horas)</label>
+          <input id="colarDur" inputmode="decimal" value="2" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="anelSilver">Anel — silver por recarga</label>
+          <input id="anelSilver" inputmode="numeric" value="5" />
+        </div>
+        <div class="field">
+          <label for="anelDur">Anel — duração (horas)</label>
+          <input id="anelDur" inputmode="decimal" value="3" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="foodHora">Food (gold por hora)</label>
+        <input id="foodHora" inputmode="numeric" value="90.000" />
+      </div>
+
+      <p class="foot-note" id="detalheOut"></p>
+    </section>
+
+    <section class="section">
+      <h2>Projeções</h2>
+      <div class="proj-grid">
+        <div class="proj">
+          <label for="charTc">Preço do char (TC)</label>
+          <input id="charTc" inputmode="numeric" value="4.750" />
+          <div class="out">
+            <div class="big" id="charMeses">--</div>
+            <div class="sub" id="charSub"></div>
+          </div>
+        </div>
+        <div class="proj">
+          <label for="metaRs">Meta em R$</label>
+          <input id="metaRs" inputmode="decimal" value="500" />
+          <div class="out">
+            <div class="big" id="metaMeses">--</div>
+            <div class="sub" id="metaSub"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Conversores</h2>
+      <div class="conv">
+        <div>
+          <label for="convTc">Quantos Tibia Coins?</label>
+          <input id="convTc" inputmode="numeric" value="1.000" />
+        </div>
+        <div class="out" id="convTcOut"></div>
+      </div>
+      <div class="conv">
+        <div>
+          <label for="convGold">Quanto de gold?</label>
+          <input id="convGold" inputmode="numeric" value="350.000.000" />
+        </div>
+        <div class="out" id="convGoldOut"></div>
+      </div>
+      <p class="foot-note" id="convNote"></p>
+    </section>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const goldHoraEl = $("goldHora"), custoHoraEl = $("custoHora"), valorTcEl = $("valorTc"),
+          valor250El = $("valor250"), horasDiaEl = $("horasDia"), diasMesEl = $("diasMes");
+    const charTcEl = $("charTc"), metaRsEl = $("metaRs"), convTcEl = $("convTc"), convGoldEl = $("convGold");
+    const detalharEl = $("detalhar"), custoHoraHintEl = $("custoHoraHint"),
+          detalheSectionEl = $("detalheSection"), detalheOutEl = $("detalheOut"),
+          imbueCustoEl = $("imbueCusto"), silverPrecoEl = $("silverPreco"),
+          colarSilverEl = $("colarSilver"), colarDurEl = $("colarDur"),
+          anelSilverEl = $("anelSilver"), anelDurEl = $("anelDur"), foodHoraEl = $("foodHora");
+
+    function parseNumber(v) { const d = v.replace(/[^\d]/g, ""); return d ? Number(d) : null; }
+    function parseDecimal(v) {
+      const c = v.trim().replace(/\./g, "").replace(",", ".").replace(/[^\d.]/g, "");
+      const n = parseFloat(c); return Number.isNaN(n) ? null : n;
+    }
+    function groupThousands(digits) {
+      return digits.replace(/^0+(?=\d)/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    function maskThousands(el) {
+      const old = el.value, caret = el.selectionStart ?? old.length;
+      const before = old.slice(0, caret).replace(/\D/g, "").length;
+      const f = groupThousands(old.replace(/\D/g, ""));
+      el.value = f;
+      let nc = f.length;
+      if (before === 0) nc = 0;
+      else { let c = 0; for (let i = 0; i < f.length; i++) { if (/\d/.test(f[i])) c++; if (c === before) { nc = i + 1; break; } } }
+      try { el.setSelectionRange(nc, nc); } catch (e) {}
+    }
+
+    function fmtNum(v, dec = 0) {
+      return v.toLocaleString("pt-BR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    }
+    function fmtReais(v) { return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+    function fmtMeses(m) {
+      if (!isFinite(m) || m <= 0) return "--";
+      const txt = m.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+      return `${txt} ${m < 1.05 && m >= 0.95 ? "mês" : "meses"}`;
+    }
+
+    // Persistência (localStorage) — sobrevive ao F5.
+    const STORE_KEY = "tibiaTools:tcmes";
+    const STORE_TEXT = ["goldHora", "custoHora", "valorTc", "valor250", "horasDia", "diasMes", "charTc", "metaRs", "convTc", "convGold",
+                        "imbueCusto", "silverPreco", "colarSilver", "colarDur", "anelSilver", "anelDur", "foodHora"];
+    const STORE_CHECK = ["detalhar"];
+    function saveState() {
+      try {
+        const s = {};
+        STORE_TEXT.forEach(id => { const el = $(id); if (el) s[id] = el.value; });
+        STORE_CHECK.forEach(id => { const el = $(id); if (el) s[id] = el.checked; });
+        localStorage.setItem(STORE_KEY, JSON.stringify(s));
+      } catch (e) {}
+    }
+    function restoreState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+        if (!s) return;
+        STORE_TEXT.forEach(id => { const el = $(id); if (el && typeof s[id] === "string") el.value = s[id]; });
+        STORE_CHECK.forEach(id => { const el = $(id); if (el && typeof s[id] === "boolean") el.checked = s[id]; });
+      } catch (e) {}
+    }
+
+    function rsPorTc() {
+      const v250 = parseDecimal(valor250El.value);
+      return v250 !== null ? v250 / 250 : null;
+    }
+
+    // Detalhamento do custo/hora: imbuements (÷20h) + colar/anel (silver ÷ duração) + food.
+    function computeCustoDetalhe() {
+      const imbue = parseNumber(imbueCustoEl.value) || 0;
+      const silverPreco = parseNumber(silverPrecoEl.value) || 0;
+      const colarSilver = parseNumber(colarSilverEl.value) || 0;
+      const colarDur = parseDecimal(colarDurEl.value) || 0;
+      const anelSilver = parseNumber(anelSilverEl.value) || 0;
+      const anelDur = parseDecimal(anelDurEl.value) || 0;
+      const food = parseNumber(foodHoraEl.value) || 0;
+      const imbueH = imbue / 20;
+      const colarH = colarDur > 0 ? (colarSilver * silverPreco) / colarDur : 0;
+      const anelH = anelDur > 0 ? (anelSilver * silverPreco) / anelDur : 0;
+      return { imbueH, colarH, anelH, food, total: imbueH + colarH + anelH + food };
+    }
+
+    function calculate() {
+      saveState();
+
+      const goldHora = parseNumber(goldHoraEl.value) || 0;
+
+      // Custo por hora: manual, ou calculado pelo detalhamento (imbue + joias + food).
+      const detalhar = detalharEl.checked;
+      detalheSectionEl.style.display = detalhar ? "" : "none";
+      custoHoraEl.readOnly = detalhar;
+      custoHoraHintEl.textContent = detalhar ? "Calculado no detalhamento abaixo." : "Gasto/h com imbuement e token.";
+      let custoHora;
+      if (detalhar) {
+        const d = computeCustoDetalhe();
+        custoHora = d.total;
+        custoHoraEl.value = groupThousands(String(Math.round(d.total)));
+        detalheOutEl.innerHTML =
+          `Imbue <b>${fmtNum(d.imbueH, 0)}</b> + Colar <b>${fmtNum(d.colarH, 0)}</b> + Anel <b>${fmtNum(d.anelH, 0)}</b> + Food <b>${fmtNum(d.food, 0)}</b> = <strong>${fmtNum(d.total, 0)} gold/h</strong>.`;
+      } else {
+        custoHora = parseNumber(custoHoraEl.value) || 0;
+      }
+
+      const valorTc = parseNumber(valorTcEl.value);
+      const horasDia = parseDecimal(horasDiaEl.value) || 0;
+      const diasMes = parseDecimal(diasMesEl.value) || 0;
+      const rsTc = rsPorTc();
+
+      const netGold = goldHora - custoHora;
+      const tcHora = valorTc ? netGold / valorTc : 0;
+      const tcDia = tcHora * horasDia;
+      const tcMes = tcDia * diasMes;
+      const rsDia = rsTc !== null ? tcDia * rsTc : 0;
+      const rsMes = rsTc !== null ? tcMes * rsTc : 0;
+
+      $("tcHora").textContent = fmtNum(tcHora, 2);
+      $("tcDia").textContent = fmtNum(tcDia, 0);
+      $("tcMes").textContent = fmtNum(tcMes, 0);
+      $("rsDia").textContent = rsTc !== null ? fmtReais(rsDia) : "--";
+      $("rsMes").textContent = rsTc !== null ? fmtReais(rsMes) : "--";
+
+      $("formula").innerHTML =
+        `Líquido/h = ${fmtNum(netGold, 0)} gold ÷ ${valorTc ? fmtNum(valorTc, 0) : "?"} (TC) = <strong>${fmtNum(tcHora, 2)} TC/h</strong>.<br>`
+        + `× ${fmtNum(horasDia, 0)}h/dia × ${fmtNum(diasMes, 0)} dias = <strong>${fmtNum(tcMes, 0)} TC/mês</strong> · 250 TC = ${rsTc !== null ? fmtReais(rsTc * 250) : "?"}.`;
+
+      // Projeções
+      const charTc = parseNumber(charTcEl.value) || 0;
+      $("charMeses").textContent = tcMes > 0 && charTc > 0 ? fmtMeses(charTc / tcMes) : "--";
+      $("charSub").textContent = (charTc > 0 && rsTc !== null)
+        ? `${fmtNum(charTc, 0)} TC = ${fmtReais(charTc * rsTc)}` + (tcDia > 0 ? ` · ≈ ${fmtNum(charTc / tcDia, 0)} dias jogados` : "")
+        : "";
+
+      const metaRs = parseDecimal(metaRsEl.value) || 0;
+      $("metaMeses").textContent = rsMes > 0 && metaRs > 0 ? fmtMeses(metaRs / rsMes) : "--";
+      $("metaSub").textContent = (metaRs > 0)
+        ? `Meta ${fmtReais(metaRs)}` + (rsDia > 0 ? ` · ≈ ${fmtNum(metaRs / rsDia, 0)} dias jogados` : "")
+        : "";
+
+      // Conversores
+      const convTc = parseNumber(convTcEl.value) || 0;
+      $("convTcOut").innerHTML = valorTc
+        ? `= <b>${fmtNum(convTc * valorTc, 0)}</b> gold <span class="muted">· ${rsTc !== null ? fmtReais(convTc * rsTc) : "?"}</span>`
+        : "";
+
+      const convGold = parseNumber(convGoldEl.value) || 0;
+      const convGoldTc = valorTc ? convGold / valorTc : 0;
+      $("convGoldOut").innerHTML = valorTc
+        ? `= <b>${fmtNum(convGoldTc, 1)}</b> TC <span class="muted">· ${rsTc !== null ? fmtReais(convGoldTc * rsTc) : "?"}</span>`
+        : "";
+
+      $("convNote").textContent = `Base: 1 TC = ${valorTc ? fmtNum(valorTc, 0) : "?"} gold · 250 TC = ${rsTc !== null ? fmtReais(rsTc * 250) : "?"}.`;
+    }
+
+    restoreState();
+    calculate();
+
+    // máscara de milhar nos campos de gold/TC
+    ["goldHora", "custoHora", "valorTc", "charTc", "convTc", "convGold", "imbueCusto", "silverPreco", "foodHora"].forEach(id => {
+      $(id).addEventListener("input", () => { maskThousands($(id)); calculate(); });
+    });
+    // campos decimais/simples
+    ["valor250", "horasDia", "diasMes", "metaRs", "colarSilver", "colarDur", "anelSilver", "anelDur"].forEach(id => {
+      $(id).addEventListener("input", calculate);
+    });
+    detalharEl.addEventListener("change", calculate);
+  </script>
+</body>
+</html>
