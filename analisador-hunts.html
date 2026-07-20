@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analisador de Hunts - Tibia</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #14110c;
+      --panel: #201b13;
+      --panel-2: #1a160f;
+      --ink: #ece5d8;
+      --muted: #a89e8d;
+      --line: #3a3225;
+      --accent: #5cbb9a;
+      --accent-2: #1e2d27;
+      --accent-border: #2f4c42;
+      --accent-ink: #c2e6d7;
+      --danger: #e78c82;
+      --warn: #dcae55;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 22px;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(19px, 2.6vw, 24px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .subtitle {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-bottom: 9px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .home-link:hover { text-decoration: underline; }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(360px, 0.95fr) minmax(420px, 1.05fr);
+    }
+
+    .form {
+      padding: 20px 22px 22px;
+      border-right: 1px solid var(--line);
+    }
+
+    .results {
+      padding: 20px 22px 22px;
+      background: var(--panel-2);
+      display: grid;
+      gap: 11px;
+      align-content: start;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 7px;
+      padding: 10px 11px;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 306px;
+      resize: vertical;
+      line-height: 1.45;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12px;
+      tab-size: 2;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(92, 187, 154, 0.4);
+    }
+
+    .hint {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 7px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 11px 14px;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(0.95); }
+
+    button.secondary {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .status {
+      min-height: 30px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .status.ok { color: var(--accent-ink); }
+    .status.bad { color: var(--danger); }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 11px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 13px 14px;
+    }
+
+    .card.feature {
+      border-color: var(--accent-border);
+      background: var(--accent-2);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 5px;
+    }
+
+    .big {
+      font-size: clamp(22px, 3.5vw, 28px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .medium {
+      font-size: 17px;
+      font-weight: 850;
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ok { color: var(--accent); }
+    .bad { color: var(--danger); }
+    .warn { color: var(--warn); }
+
+    .explain {
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+      margin: 10px 0 0;
+    }
+
+    .filters { display: grid; }
+
+    .section {
+      padding: 20px 22px 22px;
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .section.alt { background: var(--panel-2); }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    thead th {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+      text-align: right;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    thead th.lbl { text-align: left; }
+
+    tbody td {
+      padding: 9px 10px;
+      text-align: right;
+      border-bottom: 1px solid var(--line);
+      font-variant-numeric: tabular-nums;
+      vertical-align: top;
+    }
+
+    tbody td:first-child,
+    tbody td.lbl {
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:hover { background: var(--panel-2); }
+    .alt tbody tr:hover { background: var(--panel); }
+
+    .muted { color: var(--muted); }
+
+    .tag {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--accent);
+      background: var(--panel);
+      border: 1px solid var(--accent-border);
+      border-radius: 999px;
+      padding: 2px 7px;
+      margin-left: 8px;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+      padding: 10px 0 0;
+    }
+
+    .foot-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        padding: 12px;
+        place-items: start center;
+      }
+
+      .content,
+      .summary-grid,
+      .filters,
+      .row,
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .form {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      header, .form, .results, .section {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="tibia-theme.css" />
+</head>
+<body>
+  <div class="site-top">
+    <div class="site-brand">Tibia <span>Tools</span></div>
+    <div class="site-slogan">Ferramentas para tibianos.</div>
+  </div>
+  <aside class="site-menu" aria-label="Menu lateral">
+    <div class="menu-box">
+      <div class="menu-title">Ferramentas</div>
+      <ul class="menu-list">
+        <li><a href="index.html">Página inicial</a></li>
+        <li><a href="analisador-hunts.html">Analisador de hunts</a></li>
+        <li><a href="calculadora-stamina.html">Calculadora de stamina</a></li>
+        <li><a href="calculadora-xp.html">Calculadora de XP</a></li>
+        <li><a href="calculadora-tc-mes.html">TC por mês</a></li>
+      </ul>
+    </div>
+    <div class="menu-box">
+      <div class="menu-title">Fan Site</div>
+      <div class="menu-list">
+        <div class="menu-note">Projeto feito por fãs.</div>
+      </div>
+    </div>
+  </aside>
+  <main>
+    <header>
+      <a class="home-link" href="index.html">← Calculadoras</a>
+      <h1>Analisador de hunts</h1>
+      <p class="subtitle">
+        Cole os Session Logs do Tibia para comparar médias por hunt, criatura, loot e sessão.
+      </p>
+    </header>
+
+    <section class="content">
+      <div class="form">
+        <div class="field">
+          <label for="defaultHunt">Nome da hunt (opcional)</label>
+          <input id="defaultHunt" placeholder="Ex: Nightmare Isle, Wyrms, Asuras..." autocomplete="off" />
+          <div class="hint">Se deixar vazio, o site identifica a hunt pela combinação de criaturas do log.</div>
+        </div>
+
+        <div class="field">
+          <label for="logInput">Logs de hunt</label>
+          <textarea id="logInput" spellcheck="false" placeholder="Session data: From 2026-07-17, 08:59:09 to 2026-07-17, 10:28:10
+Session: 01:29h
+XP Gain: 4,936,899
+XP/h: 3,327,660
+Loot: 1,608,165
+Supplies: 108,551
+Balance: 1,499,614
+Damage: 5,232,082
+Healing: 893,528
+Killed Monsters:
+  727x fury
+  515x nightmare
+Looted Items:
+  168730x a gold coin"></textarea>
+          <div class="hint">Cole um ou vários logs em sequência. Cada linha "Session data" inicia uma nova sessão.</div>
+        </div>
+
+        <div class="actions">
+          <button id="analyzeBtn" type="button">Analisar logs</button>
+          <button id="clearBtn" class="secondary" type="button">Limpar</button>
+        </div>
+
+        <div id="status" class="status">Nenhum log analisado ainda.</div>
+      </div>
+
+      <div class="results">
+        <div class="filters">
+          <div class="field">
+            <label for="huntFilter">Hunt</label>
+            <select id="huntFilter"></select>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="card feature">
+            <div class="label">XP/h média</div>
+            <div class="big ok" id="sumXpH">--</div>
+            <p class="explain" id="sumXpExplain">Média ponderada pelo tempo.</p>
+          </div>
+
+          <div class="card feature">
+            <div class="label">Lucro/h médio</div>
+            <div class="big ok" id="sumBalanceH">--</div>
+            <p class="explain">Balance total dividido pelo tempo total.</p>
+          </div>
+
+          <div class="card">
+            <div class="label">Sessões</div>
+            <div class="medium" id="sumSessions">--</div>
+          </div>
+
+          <div class="card">
+            <div class="label">Tempo total</div>
+            <div class="medium" id="sumTime">--</div>
+          </div>
+
+          <div class="card">
+            <div class="label">Kills/h</div>
+            <div class="medium" id="sumKillsH">--</div>
+          </div>
+
+          <div class="card">
+            <div class="label">Loot/h</div>
+            <div class="medium" id="sumLootH">--</div>
+          </div>
+
+          <div class="card">
+            <div class="label">Supplies/h</div>
+            <div class="medium warn" id="sumSuppliesH">--</div>
+          </div>
+
+          <div class="card">
+            <div class="label">Damage/h</div>
+            <div class="medium" id="sumDamageH">--</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Resumo por hunt <span class="tag" id="summaryTag">0 logs</span></h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="lbl">Hunt</th>
+              <th>Sessões</th>
+              <th>Tempo</th>
+              <th>XP/h</th>
+              <th>Raw XP/h</th>
+              <th>Lucro/h</th>
+              <th>Loot/h</th>
+              <th>Supplies/h</th>
+              <th>Kills/h</th>
+            </tr>
+          </thead>
+          <tbody id="summaryBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="summaryEmpty">Cole logs e clique em analisar.</div>
+    </section>
+
+    <section class="section alt">
+      <h2>Monstros por hora</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="lbl">Hunt</th>
+              <th class="lbl">Criatura</th>
+              <th>Total</th>
+              <th>Por hora</th>
+              <th>Participação</th>
+            </tr>
+          </thead>
+          <tbody id="monsterBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="monsterEmpty">Os monstros aparecem aqui depois da análise.</div>
+    </section>
+
+    <section class="section">
+      <h2>Itens por hora</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="lbl">Hunt</th>
+              <th class="lbl">Item</th>
+              <th>Total</th>
+              <th>Por hora</th>
+            </tr>
+          </thead>
+          <tbody id="itemBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="itemEmpty">Os itens aparecem aqui depois da análise.</div>
+      <p class="foot-note">A tabela mostra os 40 itens mais frequentes dentro do filtro atual.</p>
+    </section>
+
+    <section class="section alt">
+      <h2>Sessões importadas</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="lbl">Início</th>
+              <th class="lbl">Hunt</th>
+              <th>Tempo</th>
+              <th>XP/h</th>
+              <th>Lucro/h</th>
+              <th>Loot</th>
+              <th>Supplies</th>
+              <th>Kills</th>
+            </tr>
+          </thead>
+          <tbody id="sessionBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="sessionEmpty">As sessões importadas aparecem aqui.</div>
+    </section>
+  </main>
+
+  <script src="analisador-hunts.js"></script>
+</body>
+</html>
